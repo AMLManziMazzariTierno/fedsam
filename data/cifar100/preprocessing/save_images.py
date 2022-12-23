@@ -5,7 +5,7 @@ import pickle
 from scipy import misc
 from tqdm import tqdm
 
-DIRPATH = './'
+DIRPATH = '../../'
 
 def unpickle(file):
     with open(file, 'rb') as fo:
