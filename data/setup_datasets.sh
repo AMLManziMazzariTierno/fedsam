@@ -22,4 +22,4 @@ rm cifar-100-python.tar.gz
 echo "Extracting images for pickle files..."
 mkdir ../data/raw
 mkdir ../data/raw/img
-python save_images.py
+#python save_images.py
