@@ -1,7 +1,12 @@
+import copy
 import numpy as np
+import os
+import re
 import torch
 import torch.nn as nn
 import torch.nn.init as init
+from PIL import Image
+from typing import Callable
 
 def _weights_init(m):
     classname = m.__class__.__name__
@@ -38,29 +43,26 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
         return out
 
-class ResNet(nn.Module):
-    """
-    - block = Basic Block / Bottleneck Block, in this case for a ResNet-20 we simply have a Basic Block
-    - layers = a list which tells us how many times we want to use the Basic Block (look at Table 1 in the paper)
-        f.e. in our case for ResNet-20 will be [3,2,2,2]
-    - image channels = #channels of the input, for RGB it's 3
-    - num_classes = 100 because we use CIFAR100
-    """
-    def __init__(self, block, layers, image_channels, num_classes=100):
-        super(ResNet, self).__init__()
-        # Here we're just defining the initial layers and the relu
+
+class ClientModel(nn.Module):
+    def __init__(self, lr, num_classes, device):
+        super(ClientModel, self).__init__()
+        self.num_classes = num_classes
+        self.device = device
+        self.lr = lr
+
         self.in_channels = 16
-        self.conv1 = nn.Conv2d(image_channels, 16, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.gn1 = nn.GroupNorm(2, 16)
         self.relu = nn.ReLU()
 
         # Essentially the entire ResNet architecture are in these 4 lines below
-        self.layer1 = self._make_layer(block, layers[0], out_channels=16, stride=1)
-        self.layer2 = self._make_layer(block, layers[1], out_channels=32, stride=2)
-        self.layer3 = self._make_layer(block, layers[2], out_channels=64, stride=2)
+        self.layer1 = self._make_layer(BasicBlock, 3, out_channels=16, stride=1)
+        self.layer2 = self._make_layer(BasicBlock, 3, out_channels=32, stride=2)
+        self.layer3 = self._make_layer(BasicBlock, 3, out_channels=64, stride=2)
         self.linear = nn.Linear(64, num_classes)
-
         self.apply(_weights_init)
+        self.size = self.model_size()
 
     def _make_layer(self, block, num_residual_blocks, out_channels, stride):
         """
@@ -90,5 +92,8 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
 
-def resnet20(image_channels=3):
-    return ResNet(BasicBlock, [3, 3, 3], image_channels)
+    def model_size(self):
+        tot_size = 0
+        for param in self.parameters():
+            tot_size += param.size()[0]
+        return tot_size
