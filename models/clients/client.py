@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import warnings
 from baseline_constants import ACCURACY_KEY
+from baseline_constants import DEVICE, NUM_CLASSES, BATCH_SIZE, LR, MOMENTUM, WEIGHT_DECAY, NUM_EPOCHS, LOG_FREQUENCY, PRETRAINED, FREEZE, RANDOM, AUG_PROB
 from datetime import datetime
 
 
@@ -48,7 +49,7 @@ class Client:
         """
         # Train model
         criterion = nn.CrossEntropyLoss().to(self.device)
-        optimizer = optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.weight_decay, momentum=self.momentum)
+        optimizer = optim.SGD(self.model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY, momentum=MOMENTUM)
         losses = np.empty(num_epochs)
 
         for epoch in range(num_epochs):
