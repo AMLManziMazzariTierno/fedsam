@@ -32,7 +32,7 @@ MAIN_PARAMS = {
 """dict: Specifies execution parameters (tot_num_rounds, eval_every_num_rounds, clients_per_round)"""
 
 MODEL_PARAMS = {
-    'cifar100.cnn': (0.01, 100),
+    'cifar100.resnet20': (0.01, 100),
     'cifar10.cnn': (0.01, 10),
 }
 """dict: Model specific parameter specification"""
