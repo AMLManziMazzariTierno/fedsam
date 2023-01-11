@@ -313,12 +313,9 @@ def init_wandb(args, alpha=None, run_id=None):
         job_name += '_swa' + (str(args.swa_start) if args.swa_start is not None else '') \
                     + '_c' + str(args.swa_c) + '_swalr' + str(args.swa_lr)
 
-    if run_id is None:
-        id = wandb.util.generate_id()
-    else:
-        id = run_id
+
     run = wandb.init(
-                id = id,
+                id = run_id,
                 # Set entity to specify your username or team name
                 entity="samaml",
                 # Set the project where this run will be logged
