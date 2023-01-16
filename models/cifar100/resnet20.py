@@ -47,7 +47,7 @@ class BasicBlock(nn.Module):
 class ClientModel(nn.Module):
     def __init__(self, lr, num_classes, device):
         super(ClientModel, self).__init__()
-        self.num_classes = 100
+        self.num_classes = num_classes
         self.device = device
         self.lr = lr
 
@@ -64,19 +64,32 @@ class ClientModel(nn.Module):
         self.apply(_weights_init)
         self.size = self.model_size()
 
+    """
     def _make_layer(self, block, num_residual_blocks, out_channels, stride):
-        """
-        - block = same as before, either Basic Block or Bottleneck Block
-        - num_residual_blocks = #times it's gonna use the block
-        - out_channels = #channels it's gonna be when we're done with that layer
-        - stride = the stride, because we halve by 2 every time we have a conv, except in conv2_x where we have stride = 1 
-        """
+
         layers = []
         for i in range(num_residual_blocks):
             layers.append(BasicBlock(self.in_channels, out_channels))
             self.in_channels = out_channels * block.expansion
 
         return nn.Sequential(*layers)
+    """
+    
+    def _make_layer(self, block, num_blocks, out_channels, stride):
+        """
+        - block = same as before, either Basic Block or Bottleneck Block
+        - num_residual_blocks = #times it's gonna use the block
+        - out_channels = #channels it's gonna be when we're done with that layer
+        - stride = the stride, because we halve by 2 every time we have a conv, except in conv2_x where we have stride = 1 
+        """
+        strides = [stride] + [1]*(num_blocks-1)
+        layers = []
+        for stride in strides:
+            layers.append(block(self.in_channels, out_channels, stride))
+            self.in_channels = out_channels * block.expansion
+
+        return nn.Sequential(*layers)
+
 
     def forward(self, x):
         out = self.conv1(x)

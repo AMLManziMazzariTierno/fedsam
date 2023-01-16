@@ -22,7 +22,7 @@ from utils.main_utils import *
 from utils.model_utils import read_data
 
 os.environ["WANDB_API_KEY"] = "6870e110a376e0cd73be4659a284e4eea692d8dc"
-os.environ["WANDB_MODE"] = "online"
+os.environ["WANDB_MODE"] = "offline"
 os.environ["WANDB_NOTEBOOK_NAME"] = "Proj2_FL.ipynb"
 
 def main():

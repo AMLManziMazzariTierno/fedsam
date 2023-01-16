@@ -40,7 +40,7 @@ function run_fedavg() {
 #   python main.py -dataset cifar10 --num-rounds 10000 --eval-every 100 --batch-size 64 --num-epochs 1 --clients-per-round 5 -model cnn -lr 0.01 --weight-decay 0.0004 -device cuda:0 -algorithm fedopt --server-opt sgd --server-lr 1 --num-workers 0 --where-loading init -alpha ${alpha} --client-algorithm asam -rho 0.7 -eta 0.2 -swa --swa-c 10
 # }
 
-echo "####################### EXPERIMENTS ON CIFAR10 #######################"
+echo "####################### EXPERIMENTS ON CIFAR100 #######################"
 for alpha in "${alphas[@]}"; do
   echo "Alpha ${alpha}"
   run_fedavg "${alpha}"
