@@ -47,7 +47,7 @@ class BasicBlock(nn.Module):
 class ClientModel(nn.Module):
     def __init__(self, lr, num_classes, device):
         super(ClientModel, self).__init__()
-        self.num_classes = num_classes
+        self.num_classes = 100
         self.device = device
         self.lr = lr
 
@@ -60,7 +60,7 @@ class ClientModel(nn.Module):
         self.layer1 = self._make_layer(BasicBlock, 3, out_channels=16, stride=1)
         self.layer2 = self._make_layer(BasicBlock, 3, out_channels=32, stride=2)
         self.layer3 = self._make_layer(BasicBlock, 3, out_channels=64, stride=2)
-        self.linear = nn.Linear(64, num_classes)
+        self.linear = nn.Linear(64, 100)
         self.apply(_weights_init)
         self.size = self.model_size()
 
