@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import warnings
 from baseline_constants import ACCURACY_KEY
-from baseline_constants import DEVICE, NUM_CLASSES, BATCH_SIZE, LR, MOMENTUM, WEIGHT_DECAY, NUM_EPOCHS, LOG_FREQUENCY, PRETRAINED, FREEZE, RANDOM, AUG_PROB
 from datetime import datetime
 
 
@@ -37,7 +36,6 @@ class Client:
 
     def train(self, num_epochs=1, batch_size=10, minibatch=None):
         """Trains on self.model using the client's train_data.
-
         Args:
             num_epochs: Number of epochs to train. Unsupported if minibatch is provided (minibatch has only 1 epoch)
             batch_size: Size of training batches.
@@ -49,7 +47,7 @@ class Client:
         """
         # Train model
         criterion = nn.CrossEntropyLoss().to(self.device)
-        optimizer = optim.SGD(self.model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY, momentum=MOMENTUM)
+        optimizer = optim.SGD(self.model.parameters(), lr=self.lr, weight_decay=self.weight_decay, momentum=self.momentum)
         losses = np.empty(num_epochs)
 
         for epoch in range(num_epochs):
@@ -65,7 +63,6 @@ class Client:
 
     def run_epoch(self, optimizer, criterion):
         """Runs single training epoch of self.model on client's data.
-
         Return:
             epoch loss
         """
@@ -121,7 +118,6 @@ class Client:
 
     def test(self, batch_size, set_to_use='test'):
         """Tests self.model on self.test_data.
-
         Args:
             set_to_use. Set to test on. Should be in ['train', 'test'].
         Return:
@@ -156,7 +152,6 @@ class Client:
     @property
     def num_test_samples(self):
         """Number of test samples for this client.
-
         Return:
             int: Number of test samples for this client
         """
@@ -165,7 +160,6 @@ class Client:
     @property
     def num_train_samples(self):
         """Number of train samples for this client.
-
         Return:
             int: Number of train samples for this client
         """
@@ -174,7 +168,6 @@ class Client:
     @property
     def num_samples(self):
         """Number samples for this client.
-
         Return:
             int: Number of samples for this client
         """

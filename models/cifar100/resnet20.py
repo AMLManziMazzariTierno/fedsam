@@ -19,15 +19,15 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
 
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.gn1 = nn.GroupNorm(2, out_channels)
+        self.gn1 = nn.GroupNorm(8, out_channels)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-        self.gn2 = nn.GroupNorm(2, out_channels)
+        self.gn2 = nn.GroupNorm(8, out_channels)
         self.shortcut = nn.Sequential()
 
         if stride != 1 or in_channels != out_channels:
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels * self.expansion, kernel_size=1, stride=stride, bias=False),
-                nn.GroupNorm(2, out_channels * self.expansion)
+                nn.GroupNorm(8, out_channels * self.expansion)
             )
 
         self.relu = nn.ReLU()
@@ -53,7 +53,7 @@ class ClientModel(nn.Module):
 
         self.in_channels = 16
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
-        self.gn1 = nn.GroupNorm(2, 16)
+        self.gn1 = nn.GroupNorm(8, 16)
         self.relu = nn.ReLU()
 
         # Essentially the entire ResNet architecture are in these 4 lines below
