@@ -21,9 +21,8 @@ from utils.cutout import Cutout
 from utils.main_utils import *
 from utils.model_utils import read_data
 
-os.environ["WANDB_API_KEY"] = "6870e110a376e0cd73be4659a284e4eea692d8dc"
-os.environ["WANDB_MODE"] = "online"
-os.environ["WANDB_NOTEBOOK_NAME"] = "Proj2_FL.ipynb"
+os.environ["WANDB_API_KEY"] = ""
+os.environ["WANDB_MODE"] = "offline"
 
 def main():
     args = parse_args()
@@ -82,7 +81,7 @@ def main():
     if args.lr != -1:
         model_params_list = list(model_params)
         model_params_list[0] = args.lr
-        model_params = tuple(model_params_list)
+        model_params = tuple(model_params_list) #(lr,num_classes)
 
     # Create client model, and share params with servers model
     client_model = ClientModel(*model_params, device)
@@ -184,9 +183,11 @@ def main():
         if (i + 1) % eval_every == 0 or (i + 1) == num_rounds or (i+1) > num_rounds - 100:  # eval every round in last 100 rounds
             _, test_metrics = print_stats(i + 1, server, train_clients, train_client_num_samples, test_clients, test_client_num_samples,
                                                 args, fp)
+            """
             if (i+1) > num_rounds - 100:
                 last_accuracies.append(test_metrics[0])
-
+            """
+            
         ### Gradients information ###
         model_grad_norm = server.get_model_grad()
         grad_by_param = server.get_model_grad_by_param()
@@ -247,7 +248,6 @@ def create_clients(users, train_data, test_data, model, args, ClientDataset, Cli
 
 def setup_clients(args, model, Client, ClientDataset, run=None, device=None,):
     """Instantiates clients based on given train and test data directories.
-
     Return:
         all_clients: list of Client objects.
     """
@@ -313,11 +313,10 @@ def init_wandb(args, alpha=None, run_id=None):
         job_name += '_swa' + (str(args.swa_start) if args.swa_start is not None else '') \
                     + '_c' + str(args.swa_c) + '_swalr' + str(args.swa_lr)
 
-
     run = wandb.init(
                 id = run_id,
                 # Set entity to specify your username or team name
-                entity="samaml",
+                entity="federated-learning",
                 # Set the project where this run will be logged
                 project='fl_' + args.dataset,
                 group=group_name,
@@ -335,7 +334,7 @@ def init_wandb(args, alpha=None, run_id=None):
 def print_stats(num_round, server, train_clients, train_num_samples, test_clients, test_num_samples, args, fp):
     train_stat_metrics = server.test_model(train_clients, args.batch_size, set_to_use='train')
     val_metrics = print_metrics(train_stat_metrics, train_num_samples, fp, prefix='train_')
-
+    
     test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
     test_metrics = print_metrics(test_stat_metrics, test_num_samples, fp, prefix='{}_'.format('test'))
 
@@ -346,7 +345,6 @@ def print_stats(num_round, server, train_clients, train_num_samples, test_client
 
 def print_metrics(metrics, weights, fp, prefix=''):
     """Prints weighted averages of the given metrics.
-
     Args:
         metrics: dict with client ids as keys. Each entry is a dict
             with the metrics of that client.
