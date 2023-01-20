@@ -14,7 +14,7 @@
 # python save_images.py
 
 echo "Downloading CIFAR100..."
-cd ../../cifar100/preprocessing
+cd ./cifar100/preprocessing
 wget https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz
 tar -xvf cifar-100-python.tar.gz
 rm cifar-100-python.tar.gz
