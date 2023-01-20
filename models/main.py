@@ -21,8 +21,8 @@ from utils.cutout import Cutout
 from utils.main_utils import *
 from utils.model_utils import read_data
 
-os.environ["WANDB_API_KEY"] = ""
-os.environ["WANDB_MODE"] = "offline"
+os.environ["WANDB_API_KEY"] = "6870e110a376e0cd73be4659a284e4eea692d8dc"
+os.environ["WANDB_MODE"] = "online"
 
 def main():
     args = parse_args()
@@ -316,7 +316,7 @@ def init_wandb(args, alpha=None, run_id=None):
     run = wandb.init(
                 id = run_id,
                 # Set entity to specify your username or team name
-                entity="federated-learning",
+                entity="samaml",
                 # Set the project where this run will be logged
                 project='fl_' + args.dataset,
                 group=group_name,
