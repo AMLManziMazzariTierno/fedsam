@@ -9,7 +9,7 @@ from baseline_constants import BYTES_WRITTEN_KEY, BYTES_READ_KEY, CLIENT_PARAMS_
 from collections import OrderedDict
 from tqdm import tqdm
 from cifar100.retrain_model import ReTrainModel
-from models.cifar100.dataset import VRDataset, MyImageDataset, MyTabularDataset
+from cifar100.dataset import VRDataset, MyImageDataset, MyTabularDataset
 
 
 class Server:
