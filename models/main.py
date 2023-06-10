@@ -219,7 +219,7 @@ def main():
     for client in train_clients:
         print("Local feature mean and covariance calculation...")
         # Client k computes local mean and covariance
-        c_mean, c_cov, c_length = client.cal_distributions(server.model)
+        c_mean, c_cov, c_length = client.cal_distributions(server)
         client_mean[client.id] = c_mean
         client_cov[client.id] = c_cov
         client_length[client.id] = c_length
@@ -260,7 +260,7 @@ def main():
         reset_name.append(name)
 
     # Initialize the retraining model
-    for name, param in server.model.state_dict().items():
+    for param, grad in grad_by_param.items():
         if name in reset_name:
             retrain_model.state_dict()[name].copy_(param.clone())
 
@@ -270,7 +270,7 @@ def main():
 
     # Update the global model using the retrained layers
     for name, param in retrain_model.state_dict().items():
-        server.model.state_dict()[name].copy_(param.clone())
+        server.model.load_state_dict()[name].copy_(param.clone())
 
 
     test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
