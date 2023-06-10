@@ -183,6 +183,12 @@ def parse_args():
                         type=str,
                         choices=SIM_TIMES,
                         default='large')
+    
+    ## FEDCCVR ##
+    parser.add_argument('--ccvr',
+                        help='True if use CCVR',
+                        action='store_true',
+                        default=False)
     return parser.parse_args()
 
 def check_args(args):

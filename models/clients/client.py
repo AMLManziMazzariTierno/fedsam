@@ -9,6 +9,7 @@ import torch.optim as optim
 import warnings
 from baseline_constants import ACCURACY_KEY
 from datetime import datetime
+from cifar100.dataset import get_dataset
 
 
 class Client:
@@ -80,6 +81,10 @@ class Client:
         if i == 0:
             print("Not running epoch", self.id)
             return 0
+        
+        # Fed-CCVR
+        self.apply_classifier_calibration(self.trainloader)
+
         return running_loss / i
 
     def run_epoch_with_mixup(self, optimizer, criterion):
@@ -148,6 +153,56 @@ class Client:
             accuracy = 100 * correct / total
             test_loss /= total
         return {ACCURACY_KEY: accuracy, 'loss': test_loss}
+
+    def _cal_mean_cov(self,features):
+
+        features = np.array(features)
+        mean = np.mean(features, axis=0)
+
+        cov = np.cov(features.T, bias=1)
+        return mean,cov
+
+    def cal_distributions(self, model):
+
+        for name, param in model.state_dict().items():
+            self.local_model.state_dict()[name].copy_(param.clone())
+
+        self.local_model.eval()
+
+        features = []
+        mean = []
+        cov = []
+        length = []
+
+        for i in range(self.conf["num_classes"]):
+            train_i = self.train_df[self.train_df[self.conf['label_column']] == i]
+            train_i_dataset = get_dataset(self.conf, train_i)
+
+            if len(train_i_dataset) > 0:
+                train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=self.conf["batch_size"],
+                                                             shuffle=True)
+                for batch_id, batch in enumerate(train_i_loader):
+                    data, target = batch
+
+                    if torch.cuda.is_available():
+                        data = data.cuda()
+
+                    output, feature = self.local_model(data)
+                    #print(feature.shape)
+                    features.extend(feature.tolist())
+
+                f_mean, f_cov = self._cal_mean_cov(features)
+
+            else:
+                f_mean = np.zeros((256,))
+                f_cov = np.zeros((256,256))
+
+            mean.append(f_mean)
+            cov.append(f_cov)
+            length.append(len(train_i))
+
+        return mean, cov, length
+
 
     @property
     def num_test_samples(self):

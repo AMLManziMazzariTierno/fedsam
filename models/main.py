@@ -20,6 +20,7 @@ from utils.args import parse_args, check_args
 from utils.cutout import Cutout
 from utils.main_utils import *
 from utils.model_utils import read_data
+from cifar100.retrain_model import ReTrainModel
 
 os.environ["WANDB_API_KEY"] = "6870e110a376e0cd73be4659a284e4eea692d8dc"
 os.environ["WANDB_MODE"] = "online"
@@ -207,6 +208,78 @@ def main():
         wandb.save(where_saved)
         print('Checkpoint saved in path: %s' % where_saved)
         wandb.save(file)
+
+
+    ######################### Fed-CCVR (Classifier Calibration) #################################################################################
+
+    client_mean = {}
+    client_cov = {}
+    client_length = {}
+
+    for client in train_clients:
+        print("Local feature mean and covariance calculation...")
+        # Client k computes local mean and covariance
+        c_mean, c_cov, c_length = client.cal_distributions(server.model)
+        client_mean[client.id] = c_mean
+        client_cov[client.id] = c_cov
+        client_length[client.id] = c_length
+    print("Completed calculation of local feature means and covariances")
+    
+    # Calculation of the global mean and covariance
+    g_mean, g_cov = server.cal_global_distributions(client_mean, client_cov, client_length)
+    print("Global mean and covariance calculated")
+
+    # Generate a set of Gc virtual features with ground truth label c from the Gaussian distribution.
+    retrain_vr = []
+    label = []
+    eval_vr = []
+    for i in range(conf['num_classes']):
+        mean = np.squeeze(np.array(g_mean[i]))
+        # The optimal num_vr (M_c), number of virtual features, is 2000
+        vr = np.random.multivariate_normal(mean, g_cov[i], conf["retrain"]["num_vr"]*2)
+        retrain_vr.extend(vr.tolist()[:conf["retrain"]["num_vr"]])
+        eval_vr.extend(vr.tolist()[conf["retrain"]["num_vr"]:])
+        label.extend([i]*conf["retrain"]["num_vr"])
+
+    print("Finished generating virtual features")
+    
+    ################### Classifier Re-Training ################################ using virtual representations
+        
+    # We take out the classifier g from the global model, initialize its parameter as phi^,
+    # and re-train the parameter to phi^ for the objective (see the paper) where l is the cross-entropy loss.
+    # We then obtain the final classification model "g_phi o f_teta^" consisting  of the pre-trained feature extractor
+    # and the calibrated classifier
+
+
+    # Get the layers of the model to be retrained
+    retrain_model = ReTrainModel()
+    if torch.cuda.is_available():
+        retrain_model.cuda()
+    reset_name = []
+    for name, _ in retrain_model.state_dict().items():
+        reset_name.append(name)
+
+    # Initialize the retraining model
+    for name, param in server.model.state_dict().items():
+        if name in reset_name:
+            retrain_model.state_dict()[name].copy_(param.clone())
+
+    # Retrain using virtual features
+    retrain_model = server.retrain_vr(retrain_vr, label, eval_vr, retrain_model)
+    print("Finished retraining")
+
+    # Update the global model using the retrained layers
+    for name, param in retrain_model.state_dict().items():
+        server.model.state_dict()[name].copy_(param.clone())
+
+
+    test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
+    test_metrics = print_metrics(test_stat_metrics, test_client_num_samples, fp, prefix='{}_'.format('test'))
+
+    wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
+    print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
+
+    ############################################################################################à
 
     ## FINAL ANALYSIS ##
     where_saved = server.save_model(num_rounds, os.path.join(ckpt_path, 'round:' + str(num_rounds) + '_' + job_name + '_' + current_time + '.ckpt'))
