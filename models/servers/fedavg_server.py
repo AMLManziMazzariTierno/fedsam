@@ -14,7 +14,7 @@ from cifar100.dataset import VRDataset, MyImageDataset, MyTabularDataset
 
 class Server:
 
-    def __init__(self, client_model, conf):
+    def __init__(self, client_model):
         self.client_model = copy.deepcopy(client_model)
         self.device = self.client_model.device
         self.model = copy.deepcopy(client_model.state_dict())
@@ -23,7 +23,6 @@ class Server:
         self.updates = []
         self.momentum = 0
         self.swa_model = None
-        self.conf = conf
 
     #################### METHODS FOR FEDERATED ALGORITHM ####################
 

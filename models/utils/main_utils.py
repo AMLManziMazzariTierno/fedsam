@@ -78,8 +78,6 @@ def check_init_paths(paths):
 def define_server_params(args, client_model, server_name, opt_ckpt):
     if server_name == 'fedavg':
         server_params = {'client_model': client_model}
-    elif server_name == 'fedavg_with_ccvr':
-        server_params = {'client_model': client_model, 'conf': conf}
     elif server_name == 'fedopt':
         server_params = {'client_model': client_model, 'server_opt': args.server_opt, 'server_lr': args.server_lr,
                          'momentum': args.server_momentum, 'opt_ckpt': opt_ckpt}
