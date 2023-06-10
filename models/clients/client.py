@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import warnings
-from baseline_constants import ACCURACY_KEY
+from baseline_constants import ACCURACY_KEY, conf
 from datetime import datetime
 from cifar100.dataset import get_dataset
 
@@ -159,24 +159,27 @@ class Client:
         cov = np.cov(features.T, bias=1)
         return mean,cov
 
-    def cal_distributions(self, model):
+    def cal_distributions(self, server):
 
-        for name, param in model.state_dict().items():
-            self.local_model.state_dict()[name].copy_(param.clone())
+        model = server.model
+        grad_by_param = server.get_model_grad_by_param()
+        for param, grad in grad_by_param.items():
+            name = 'params_grad/' + param
+            self.model.state_dict()[name].copy_(param.clone())
 
-        self.local_model.eval()
+        self.model.eval()
 
         features = []
         mean = []
         cov = []
         length = []
 
-        for i in range(self.conf["num_classes"]):
-            train_i = self.train_df[self.train_df[self.conf['label_column']] == i]
-            train_i_dataset = get_dataset(self.conf, train_i)
+        for i in range(conf["num_classes"]):
+            train_i = self.train_data[self.train_data[conf['label_column']] == i]
+            train_i_dataset = get_dataset(conf, train_i)
 
             if len(train_i_dataset) > 0:
-                train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=self.conf["batch_size"],
+                train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=conf["batch_size"],
                                                              shuffle=True)
                 for batch_id, batch in enumerate(train_i_loader):
                     data, target = batch
@@ -184,7 +187,7 @@ class Client:
                     if torch.cuda.is_available():
                         data = data.cuda()
 
-                    output, feature = self.local_model(data)
+                    output, feature = self.model(data)
                     #print(feature.shape)
                     features.extend(feature.tolist())
 
