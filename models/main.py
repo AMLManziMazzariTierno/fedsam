@@ -279,7 +279,7 @@ def main():
     wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
     print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
 
-    ############################################################################################à
+    ############################################################################################
 
     ## FINAL ANALYSIS ##
     where_saved = server.save_model(num_rounds, os.path.join(ckpt_path, 'round:' + str(num_rounds) + '_' + job_name + '_' + current_time + '.ckpt'))
