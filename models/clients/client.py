@@ -81,9 +81,6 @@ class Client:
         if i == 0:
             print("Not running epoch", self.id)
             return 0
-        
-        # Fed-CCVR
-        self.apply_classifier_calibration(self.trainloader)
 
         return running_loss / i
 
