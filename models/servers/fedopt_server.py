@@ -2,6 +2,9 @@ import copy
 import torch
 import torch.optim as optim
 from collections import OrderedDict
+from cifar100.retrain_model import ReTrainModel
+from cifar100.dataset import VRDataset, MyImageDataset, MyTabularDataset
+import numpy as np
 
 from .fedavg_server import Server
 
