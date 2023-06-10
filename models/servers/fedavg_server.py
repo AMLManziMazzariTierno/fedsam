@@ -81,8 +81,6 @@ class Server:
             sys_metrics = self._update_sys_metrics(c, sys_metrics)
             self.updates.append((num_samples, copy.deepcopy(update)))
 
-        self.perform_fed_ccvr()
-
         return sys_metrics
 
     def _update_sys_metrics(self, c, sys_metrics):
@@ -278,51 +276,6 @@ class Server:
         acc = 100.0 * (float(correct) / float(dataset_size))
         total_l = total_loss.cpu().detach().numpy() / dataset_size
         return acc, total_l
-
-    def perform_fed_ccvr(self):
-        # Additional code for Fed-CCVR
-        client_mean = {}
-        client_cov = {}
-        client_length = {}
-
-        # Step 1: Calculating Local Feature Mean and Covariance
-        for c in self.selected_clients:
-            c_mean, c_cov, c_length = c.cal_distributions(self.client_model)
-            client_mean[c.id] = c_mean
-            client_cov[c.id] = c_cov
-            client_length[c.id] = c_length
-
-        # Step 2: Calculating Global Mean and Covariance
-        g_mean, g_cov = self.cal_global_gd(client_mean, client_cov, client_length)
-
-        # Step 3: Generating Virtual Features
-        retrain_vr = []
-        label = []
-        eval_vr = []
-        for i in range(conf['num_classes']):
-            mean = np.squeeze(np.array(g_mean[i]))
-            vr = np.random.multivariate_normal(mean, g_cov[i], conf["retrain"]["num_vr"] * 2)
-            retrain_vr.extend(vr.tolist()[:conf["retrain"]["num_vr"]])
-            eval_vr.extend(vr.tolist()[conf["retrain"]["num_vr"]:])
-            label.extend([i] * conf["retrain"]["num_vr"])
-
-        # Step 4: Classifier Re-Training
-        retrain_model = ReTrainModel()
-        if torch.cuda.is_available():
-            retrain_model.cuda()
-        reset_name = []
-        for name, _ in retrain_model.state_dict().items():
-            reset_name.append(name)
-
-        for name, param in self.client_model.state_dict().items():
-            if name in reset_name:
-                retrain_model.state_dict()[name].copy_(param.clone())
-
-        retrain_model = self.retrain_vr(retrain_vr, label, eval_vr, retrain_model)
-
-        # Step 5: Update the global model
-        for name, param in retrain_model.state_dict().items():
-            self.client_model.state_dict()[name].copy_(param.clone())
 
     def retrain_vr(self, vr, label, eval_vr, classifier):
         """
