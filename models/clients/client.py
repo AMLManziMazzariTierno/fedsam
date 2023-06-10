@@ -160,12 +160,8 @@ class Client:
         return mean,cov
 
     def cal_distributions(self, server):
-
-        model = server.model
-        grad_by_param = server.get_model_grad_by_param()
-        for param, grad in grad_by_param.items():
-            name = 'params_grad/' + param
-            self.model.state_dict()[name].copy_(param.clone())
+        
+        server.update_model()
 
         self.model.eval()
 

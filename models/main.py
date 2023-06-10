@@ -261,6 +261,7 @@ def main():
 
     # Initialize the retraining model
     for param, grad in grad_by_param.items():
+        name = 'params_grad/' + param
         if name in reset_name:
             retrain_model.state_dict()[name].copy_(param.clone())
 
