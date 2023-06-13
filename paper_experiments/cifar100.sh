@@ -2,7 +2,7 @@
 
 pushd ../models
 
-declare -a alphas=("0" "0.5")
+declare -a alphas=("0.5" "0")
 
 function run_fedavg() {
   echo "############################################## Running FedAvg ##############################################"
