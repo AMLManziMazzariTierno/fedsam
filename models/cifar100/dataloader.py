@@ -57,7 +57,7 @@ class ClientDataset(Dataset):
             
     def get_samples_by_class(self, class_label):
         indices = [i for i, label in enumerate(self.labels) if label == class_label]
-        class_data = [self.data[i] for i in indices]
+        class_data = [self.imgs[i] for i in indices]
         class_labels = [self.labels[i] for i in indices]
         return ClientDataset(class_data, class_labels)
 
