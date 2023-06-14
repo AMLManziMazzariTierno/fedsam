@@ -2,12 +2,12 @@
 
 pushd ../models
 
-declare -a alphas=("0.5" "0")
+declare -a alphas=("1000")
 
 function run_fedavg() {
   echo "############################################## Running FedAvg ##############################################"
   alpha="$1"
-  python main.py -dataset cifar100 --num-rounds 10 --eval-every 200 --batch-size 128 --num-epochs 3 --clients-per-round 8 -model resnet20 -lr 0.1 --weight-decay 0.0001 -device cuda:0 -algorithm fedopt --server-lr 1 --server-opt sgd --num-workers 0 --where-loading init -alpha ${alpha}
+  python main.py -dataset cifar100 --num-rounds 1000 --eval-every 200 --batch-size 128 --num-epochs 3 --clients-per-round 8 -model resnet20 -lr 0.1 --weight-decay 0.0001 -device cuda:0 -algorithm fedopt --server-lr 1 --server-opt sgd --num-workers 0 --where-loading init -alpha ${alpha} --load checkpoints/cifar100/alpha1000_K8_N1000_resnet20_E3_clr0.1_fedopt_sgd_slr1.0_012023_16:10:49.ckpt
 }
 
 # function run_fedavg_with_swa() {
