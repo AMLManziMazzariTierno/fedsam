@@ -54,6 +54,12 @@ class ClientDataset(Dataset):
                                         transforms.ToTensor(),
                                         transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
                                     ])
+            
+    def get_samples_by_class(self, class_label):
+        indices = [i for i, label in enumerate(self.labels) if label == class_label]
+        class_data = [self.data[i] for i in indices]
+        class_labels = [self.labels[i] for i in indices]
+        return ClientDataset(class_data, class_labels)
 
     def __len__(self):
         return len(self.labels)
