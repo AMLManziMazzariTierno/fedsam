@@ -55,11 +55,12 @@ class ClientDataset(Dataset):
                                         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
                                     ])
 
-    def get_samples_by_class(self, class_label):
-        indices = [i for i, label in enumerate(self.labels) if label == class_label]
-        class_data = [self.data[i] for i in indices]
-        class_labels = [self.labels[i] for i in indices]
-        return ClientDataset(class_data, class_labels)
+    def get_samples_by_class(self):
+        samples_by_class = defaultdict(list)
+        for idx, label in enumerate(self.labels):
+            sample = self.imgs[idx] if self.loading == 'training_time' else self.imgs[idx].copy()
+            samples_by_class[label].append(sample)
+        return dict(samples_by_class)
 
     def __len__(self):
         return len(self.labels)
