@@ -215,8 +215,12 @@ def main():
     client_mean = {}
     client_cov = {}
     client_length = {}
+    
+    server.select_clients(i, online(train_clients), num_clients=clients_per_round)
+    c_ids, c_num_samples = server.get_clients_info(server.selected_clients)
+    print("Selected clients:", c_ids)
 
-    for client in train_clients:
+    for client in server.selected_clients:
         print("Local feature mean and covariance calculation...")
         # Client k computes local mean and covariance
         c_mean, c_cov, c_length = client.cal_distributions(server)
@@ -226,7 +230,7 @@ def main():
     print("Completed calculation of local feature means and covariances")
     
     # Calculation of the global mean and covariance
-    g_mean, g_cov = server.cal_global_distributions(client_mean, client_cov, client_length)
+    g_mean, g_cov = server.cal_global_gd(client_mean, client_cov, client_length)
     print("Global mean and covariance calculated")
 
     # Generate a set of Gc virtual features with ground truth label c from the Gaussian distribution.
