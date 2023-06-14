@@ -54,6 +54,7 @@ class ClientDataset(Dataset):
                                         transforms.ToTensor(),
                                         transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
                                     ])
+
     def __len__(self):
         return len(self.labels)
 
