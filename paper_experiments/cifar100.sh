@@ -7,7 +7,7 @@ declare -a alphas=("0.5" "0")
 function run_fedavg() {
   echo "############################################## Running FedAvg ##############################################"
   alpha="$1"
-  python main.py -dataset cifar100 --num-rounds 1000 --eval-every 200 --batch-size 128 --num-epochs 3 --clients-per-round 8 -model resnet20 -lr 0.1 --weight-decay 0.0001 -device cuda:0 -algorithm fedopt --server-lr 1 --server-opt sgd --num-workers 0 --where-loading init -alpha ${alpha}
+  python main.py -dataset cifar100 --num-rounds 10 --eval-every 200 --batch-size 128 --num-epochs 3 --clients-per-round 8 -model resnet20 -lr 0.1 --weight-decay 0.0001 -device cuda:0 -algorithm fedopt --server-lr 1 --server-opt sgd --num-workers 0 --where-loading init -alpha ${alpha}
 }
 
 # function run_fedavg_with_swa() {
