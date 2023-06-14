@@ -86,7 +86,7 @@ def define_server_params(args, client_model, server_name, opt_ckpt):
     return server_params
 
 def define_client_params(client_name, args):
-    client_params = {'seed': args.seed, 'lr': args.lr, 'weight_decay': args.weight_decay, 'batch_size': args.batch_size,
+    client_params = {'lr': args.lr, 'weight_decay': args.weight_decay, 'batch_size': args.batch_size,
                      'num_workers': args.num_workers, 'momentum': args.momentum, 'mixup': args.mixup, 'mixup_alpha': args.mixup_alpha}
     if client_name == 'asam' or client_name == 'sam':
         client_params['rho'] = args.rho
