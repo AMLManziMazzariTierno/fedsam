@@ -171,7 +171,7 @@ class Client:
         length = []
 
         for i in range(conf["num_classes"]):
-            train_i = self.train_data[self.train_data[conf['label_column']] == i]
+            train_i = self.train_data[conf['label_column'] == i]
             train_i_dataset = get_dataset(conf, train_i)
 
             if len(train_i_dataset) > 0:
