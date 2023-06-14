@@ -275,7 +275,7 @@ def main():
 
     # Update the global model using the retrained layers
     for name, param in retrain_model.state_dict().items():
-        server.model.load_state_dict()[name].copy_(param.clone())
+        server.model[name].copy_(param.clone())
 
 
     test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
