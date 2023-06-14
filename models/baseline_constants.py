@@ -45,10 +45,10 @@ conf = {
 	"no-iid": "fed_ccvr",
 
 	# Global epochs
-	"global_epochs" : 500,
+	"global_epochs" : 1000,
 
 	# Local epochs
-	"local_epochs" : 1,
+	"local_epochs" : 3,
 
 	# Dirichlet parameter
 	"beta" : 1000,
@@ -66,7 +66,7 @@ conf = {
 	"num_classes": 100, # era a 2
 
 	# Number of parties/nodes
-	"num_parties": 5,
+	"num_parties": 8,
 
     # Model aggregation weight initialization
 	"is_init_avg": True,
@@ -93,7 +93,7 @@ conf = {
 	"model_file":"model.pth",
 
 	"retrain":{
-		"epoch": 10,
+		"epoch": 30,
 		"lr": 0.0001,
 		"num_vr":2000
 	}
