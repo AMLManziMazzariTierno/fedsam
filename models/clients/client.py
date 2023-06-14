@@ -171,9 +171,9 @@ class Client:
         length = []
 
         for i in range(conf["num_classes"]):
-            print(self.train_data)
-            train_i = self.train_data[self.train_data["label"]==i]
-            train_i_dataset = get_dataset(conf, train_i)
+            
+            train_i = self.train_data.get_samples_by_class(i)
+            train_i_dataset = get_dataset(self.conf, train_i)
 
             if len(train_i_dataset) > 0:
                 train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=conf["batch_size"],
