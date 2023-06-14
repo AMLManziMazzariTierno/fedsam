@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 import random
-from cifar100.dataloader import ClientDataset
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn as nn
