@@ -72,7 +72,7 @@ class Client:
         for j, data in enumerate(self.trainloader):
             input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
             optimizer.zero_grad()
-            outputs = self.model(input_data_tensor)
+            outputs, feature = self.model(input_data_tensor)
             loss = criterion(outputs, target_data_tensor)
             loss.backward()  # gradient inside the optimizer (memory usage increases here)
             running_loss += loss.item()
@@ -91,7 +91,7 @@ class Client:
             inputs, targets = data[0].to(self.device), data[1].to(self.device)
             inputs, targets_a, targets_b, lam = self.mixup_data(inputs, targets)
             optimizer.zero_grad()
-            outputs = self.model(inputs)
+            outputs, feature = self.model(inputs)
             loss = self.mixup_criterion(criterion, outputs, targets_a, targets_b, lam)
             loss.backward()  # gradient inside the optimizer (memory usage increases here)
             running_loss += loss.item()
@@ -138,7 +138,7 @@ class Client:
         for data in dataloader:
             input_tensor, labels_tensor = data[0].to(self.device), data[1].to(self.device)
             with torch.no_grad():
-                outputs = self.model(input_tensor)
+                outputs, feature = self.model(input_tensor)
                 test_loss += F.cross_entropy(outputs, labels_tensor, reduction='sum').item()
                 _, predicted = torch.max(outputs.data, 1)  # same as torch.argmax()
                 total += labels_tensor.size(0)
@@ -171,7 +171,8 @@ class Client:
         length = []
 
         for i in range(conf["num_classes"]):
-            train_i = self.train_data[conf['label_column'] == i]
+            print(self.train_data)
+            train_i = self.train_data[self.train_data["label"]==i]
             train_i_dataset = get_dataset(conf, train_i)
 
             if len(train_i_dataset) > 0:
@@ -183,8 +184,7 @@ class Client:
                     if torch.cuda.is_available():
                         data = data.cuda()
 
-                    output, feature = self.model(data)
-                    #print(feature.shape)
+                    outputs, feature = self.model(data)
                     features.extend(feature.tolist())
 
                 f_mean, f_cov = self._cal_mean_cov(features)
