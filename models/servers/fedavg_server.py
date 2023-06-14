@@ -284,7 +284,7 @@ class Server:
         """
         self.retrain_model = classifier
         retrain_dataset = VRDataset(vr, label)
-        retrain_loader = torch.utils.data.DataLoader(retrain_dataset, batch_size=self.conf["batch_size"],shuffle=True)
+        retrain_loader = torch.utils.data.DataLoader(retrain_dataset, batch_size=conf["batch_size"],shuffle=True)
 
         optimizer = torch.optim.SGD(self.retrain_model.parameters(), lr=self.conf['retrain']['lr'], momentum=self.conf['momentum'],weight_decay=self.conf["weight_decay"])
         # optimizer = torch.optim.Adam(self.local_model.parameters(), lr=self.conf['lr'])

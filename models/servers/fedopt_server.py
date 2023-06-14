@@ -5,6 +5,7 @@ from collections import OrderedDict
 from cifar100.retrain_model import ReTrainModel
 from cifar100.dataset import VRDataset, MyImageDataset, MyTabularDataset
 import numpy as np
+from baseline_constants import conf
 
 from .fedavg_server import Server
 
@@ -127,7 +128,7 @@ class FedOptServer(Server):
         self.retrain_model.eval()
 
         eval_dataset = VRDataset(eval_vr, label)
-        eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=self.conf["batch_size"], shuffle=True)
+        eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=conf["batch_size"], shuffle=True)
 
         total_loss = 0.0
         correct = 0
@@ -162,12 +163,12 @@ class FedOptServer(Server):
         """
         self.retrain_model = classifier
         retrain_dataset = VRDataset(vr, label)
-        retrain_loader = torch.utils.data.DataLoader(retrain_dataset, batch_size=self.conf["batch_size"],shuffle=True)
+        retrain_loader = torch.utils.data.DataLoader(retrain_dataset, batch_size=conf["batch_size"],shuffle=True)
 
-        optimizer = torch.optim.SGD(self.retrain_model.parameters(), lr=self.conf['retrain']['lr'], momentum=self.conf['momentum'],weight_decay=self.conf["weight_decay"])
-        # optimizer = torch.optim.Adam(self.local_model.parameters(), lr=self.conf['lr'])
+        optimizer = torch.optim.SGD(self.retrain_model.parameters(), lr=conf['retrain']['lr'], momentum=conf['momentum'],weight_decay=conf["weight_decay"])
+        # optimizer = torch.optim.Adam(self.local_model.parameters(), lr=conf['lr'])
         criterion = torch.nn.CrossEntropyLoss()
-        for e in range(self.conf["retrain"]["epoch"]):
+        for e in range(conf["retrain"]["epoch"]):
 
             self.retrain_model.train()
 
