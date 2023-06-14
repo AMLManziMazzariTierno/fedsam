@@ -172,9 +172,9 @@ class Client:
 
         for i in range(conf["num_classes"]):
         
-            mask = np.array(self.train_data.labels) == i
-            filtered_samples = np.array(self.train_data.imgs)[mask]
-            filtered_labels = np.array(self.train_data.labels)[mask]
+            mask = torch.tensor(self.train_data.labels) == i
+            filtered_samples = torch.tensor(self.train_data.imgs)[mask]
+            filtered_labels = torch.tensor(self.train_data.labels)[mask]
             
             train_i_samples = filtered_samples.tolist()
             train_i_labels = filtered_labels.tolist()
@@ -201,7 +201,7 @@ class Client:
 
             mean.append(f_mean)
             cov.append(f_cov)
-            length.append(len(train_i))
+            length.append(len(train_i_dataset))
 
         return mean, cov, length
 
