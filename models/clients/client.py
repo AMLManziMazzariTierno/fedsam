@@ -171,17 +171,10 @@ class Client:
         length = []
 
         for i in range(conf["num_classes"]):
-        
             if len(self.train_data) > 0:
-                
-                for batch_id, batch in enumerate(self.trainloader):
-                    
-                    data, target = batch
-
-                    if torch.cuda.is_available():
-                        data = data.cuda()
-
-                    outputs, feature = self.model(data)
+                for j, data in enumerate(self.trainloader):
+                    input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
+                    outputs, feature = self.model(input_data_tensor)
                     features.extend(feature.tolist())
 
                 f_mean, f_cov = self._cal_mean_cov(features)
