@@ -101,10 +101,14 @@ class ClientModel(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
 
-        out = torch.nn.functional.avg_pool2d(out, out.size()[3])
-        out = out.view(out.size(0), -1)
+        out = F.avg_pool2d(out, out.size()[3])
+        
+        out = out.view(out.size(0), -1) # Flatten the features
+
+        feature = out
         out = self.linear(out)
-        return out
+            
+        return out, feature
       
     def model_size(self):
         tot_size = 0
