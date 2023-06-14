@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import random
+from models.cifar100.dataloader import ClientDataset
 import torch
 import torch.distributions.constraints as constraints
 import torch.nn as nn
@@ -171,9 +172,15 @@ class Client:
         length = []
 
         for i in range(conf["num_classes"]):
+        
+            mask = np.array(self.train_data.labels) == i
+            filtered_samples = np.array(self.train_data.imgs)[mask]
+            filtered_labels = np.array(self.train_data.labels)[mask]
             
-            train_i = self.train_data.get_samples_by_class(i)
-            train_i_dataset = get_dataset(conf, train_i)
+            train_i_samples = filtered_samples.tolist()
+            train_i_labels = filtered_labels.tolist()
+            
+            train_i_dataset = ClientDataset({'x': train_i_samples, 'y': train_i_labels}, train=True)
 
             if len(train_i_dataset) > 0:
                 train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=conf["batch_size"],
