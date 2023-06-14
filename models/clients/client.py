@@ -172,19 +172,10 @@ class Client:
 
         for i in range(conf["num_classes"]):
         
-            mask = torch.tensor(self.train_data.labels) == i
-            filtered_samples = torch.tensor(self.train_data.imgs)[mask]
-            filtered_labels = torch.tensor(self.train_data.labels)[mask]
-            
-            train_i_samples = filtered_samples.tolist()
-            train_i_labels = filtered_labels.tolist()
-            
-            train_i_dataset = ClientDataset({'x': train_i_samples, 'y': train_i_labels}, train=True)
-
-            if len(train_i_dataset) > 0:
-                train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=conf["batch_size"],
-                                                             shuffle=True)
-                for batch_id, batch in enumerate(train_i_loader):
+            if len(self.train_data) > 0:
+                
+                for batch_id, batch in enumerate(self.trainloader):
+                    
                     data, target = batch
 
                     if torch.cuda.is_available():
@@ -201,7 +192,7 @@ class Client:
 
             mean.append(f_mean)
             cov.append(f_cov)
-            length.append(len(train_i_dataset))
+            length.append(len(self.train_data))
 
         return mean, cov, length
 
