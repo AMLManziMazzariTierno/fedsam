@@ -220,7 +220,7 @@ def main():
     c_ids, c_num_samples = server.get_clients_info(server.selected_clients)
     print("Selected clients:", c_ids)
 
-    for client in server.selected_clients:
+    for client in train_clients:
         print("Local feature mean and covariance calculation...")
         # Client k computes local mean and covariance
         c_mean, c_cov, c_length = client.cal_distributions(server)
