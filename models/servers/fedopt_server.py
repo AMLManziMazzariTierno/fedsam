@@ -12,7 +12,7 @@ from .fedavg_server import Server
 
 
 class FedOptServer(Server):
-    def __init__(self, client_model, server_opt, server_lr, test_data, momentum=0, opt_ckpt=None):
+    def __init__(self, client_model, server_opt, server_lr, test_data, selected_clients, momentum=0, opt_ckpt=None):
         super().__init__(client_model)
         print("Server optimizer:", server_opt, "with lr", server_lr, "and momentum", momentum)
         self.server_lr = server_lr
@@ -255,29 +255,35 @@ class FedOptServer(Server):
             return None
         return dataset
 
-    def get_feature_label(self):
+    def get_feature_label(self, test_clients):
         self.client_model.eval()
 
         cnt = 0
         features = []
         true_labels = []
         pred_labels = []
-        
-        for j, data in enumerate(self.test_loader):
 
-            input_tensor, labels_tensor = data[0].to(self.device), data[1].to(self.device)
-            with torch.no_grad():
-                outputs, feature = self.model(input_tensor)
-                test_loss += F.cross_entropy(outputs, labels_tensor, reduction='sum').item()
-                _, pred = torch.max(outputs.data, 1)  # same as torch.argmax()
-                features.append(feature)
-                true_labels.append(labels_tensor)
-                pred_labels.append(pred)
-                total += labels_tensor.size(0)
-                cnt += input_tensor.size()[0]
-            
-                if cnt > 1000:
-                    break
+        for client in test_clients:
+            if self.swa_model is None:
+                client.model.load_state_dict(self.model)
+            else:
+                client.model.load_state_dict(self.swa_model.state_dict())
+        
+            for data in client.testloader:
+                
+                input_tensor, labels_tensor = data[0].to(self.device), data[1].to(self.device)
+                with torch.no_grad():
+                    outputs, feature = self.model(input_tensor)
+                    test_loss += F.cross_entropy(outputs, labels_tensor, reduction='sum').item()
+                    _, pred = torch.max(outputs.data, 1)  # same as torch.argmax()
+                    features.append(feature)
+                    true_labels.append(labels_tensor)
+                    pred_labels.append(pred)
+                    total += labels_tensor.size(0)
+                    cnt += input_tensor.size()[0]
+                
+                    if cnt > 1000:
+                        break
 
         features = torch.cat(features, dim=0)
         true_labels = torch.cat(true_labels, dim=0)

@@ -307,7 +307,7 @@ def main():
     tsne_features, tsne_true_labels, tsne_before_labels = server.get_feature_label()
     # Get labels after calibration
     server.client_model.load_state_dict(torch.load(args.model_after_calibration))
-    _, _, tsne_after_labels = server.get_feature_label()
+    _, _, tsne_after_labels = server.get_feature_label(test_clients)
     # Perform t-SNE visualization
     fed_tsne = FedTSNE(tsne_features.detach().cpu().numpy(), random_state=args.random_state)
     fed_tsne.visualize_3(tsne_true_labels.detach().cpu().numpy(),
