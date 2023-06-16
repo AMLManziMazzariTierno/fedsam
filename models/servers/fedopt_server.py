@@ -6,6 +6,7 @@ from cifar100.retrain_model import ReTrainModel
 from cifar100.dataset import VRDataset, MyImageDataset, MyTabularDataset
 import numpy as np
 from baseline_constants import conf
+import torch.nn.functional as F
 
 from .fedavg_server import Server
 
@@ -270,23 +271,21 @@ class FedOptServer(Server):
             else:
                 client.model.load_state_dict(self.swa_model.state_dict())
         
-            for batch_id, batch in enumerate(client.testloader):
-                data, target = batch
-                cnt += data.size()[0]
-
-                if torch.cuda.is_available():
-                    data = data.cuda()
-                    target = target.cuda()
-
-                feature, output = self.client_model(data)
-                pred = output.data.max(1)[1]  # get the index of the max log-probability
+            for data in client.testloader:
                 
-                features.append(feature)
-                true_labels.append(target)
-                pred_labels.append(pred)
+                input_tensor, labels_tensor = data[0].to(self.device), data[1].to(self.device)
+                with torch.no_grad():
+                    outputs, feature = self.model(input_tensor)
+                    test_loss += F.cross_entropy(outputs, labels_tensor, reduction='sum').item()
+                    _, pred = torch.max(outputs.data, 1)  # same as torch.argmax()
+                    features.append(feature)
+                    true_labels.append(labels_tensor)
+                    pred_labels.append(pred)
+                    total += labels_tensor.size(0)
+                    cnt += input_tensor.size()[0]
                 
-                if cnt > 1000:
-                    break
+                    if cnt > 1000:
+                        break
 
         features = torch.cat(features, dim=0)
         true_labels = torch.cat(true_labels, dim=0)
