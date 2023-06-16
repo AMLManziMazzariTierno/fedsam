@@ -191,7 +191,7 @@ def main():
             # Save the best model (useful for t-SNE visualization later on)
             acc = test_metrics[0]
             if acc >= max_acc:
-                torch.save(server.global_model.state_dict(), os.path.join(conf["model_dir"], "model-epoch{}.pth".format(i+1)))
+                torch.save(server.client_model.state_dict(), os.path.join(conf["model_dir"], "model-epoch{}.pth".format(i+1)))
                 max_acc = acc
             
             """
