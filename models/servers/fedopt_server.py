@@ -16,7 +16,7 @@ class FedOptServer(Server):
         print("Server optimizer:", server_opt, "with lr", server_lr, "and momentum", momentum)
         self.server_lr = server_lr
         self.server_momentum = momentum
-        self.test_data = test_data
+        self.test_loader = torch.utils.data.DataLoader(test_data, batch_size=conf["batch_size"], shuffle=True)
         self.server_opt = self._get_optimizer(server_opt)
         if opt_ckpt is not None:
             self.load_optimizer_checkpoint(opt_ckpt)
@@ -261,7 +261,7 @@ class FedOptServer(Server):
         features = []
         true_labels = []
         pred_labels = []
-        for batch_id, batch in enumerate(self.test_data):
+        for batch_id, batch in enumerate(self.test_loader):
             data, target = batch
             cnt += data.size()[0]
 
