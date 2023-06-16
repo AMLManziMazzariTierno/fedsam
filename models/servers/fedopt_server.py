@@ -261,23 +261,32 @@ class FedOptServer(Server):
         features = []
         true_labels = []
         pred_labels = []
-        for batch_id, batch in enumerate(self.test_loader):
-            data, target = batch
-            cnt += data.size()[0]
+        
+        clients_to_test = self.selected_clients
 
-            if torch.cuda.is_available():
-                data = data.cuda()
-                target = target.cuda()
+        for client in clients_to_test:
+            if self.swa_model is None:
+                client.model.load_state_dict(self.model)
+            else:
+                client.model.load_state_dict(self.swa_model.state_dict())
+        
+            for batch_id, batch in enumerate(client.testloader):
+                data, target = batch
+                cnt += data.size()[0]
 
-            feature, output = self.client_model(data)
-            pred = output.data.max(1)[1]  # get the index of the max log-probability
-            
-            features.append(feature)
-            true_labels.append(target)
-            pred_labels.append(pred)
-            
-            if cnt > 1000:
-                break
+                if torch.cuda.is_available():
+                    data = data.cuda()
+                    target = target.cuda()
+
+                feature, output = self.client_model(data)
+                pred = output.data.max(1)[1]  # get the index of the max log-probability
+                
+                features.append(feature)
+                true_labels.append(target)
+                pred_labels.append(pred)
+                
+                if cnt > 1000:
+                    break
 
         features = torch.cat(features, dim=0)
         true_labels = torch.cat(true_labels, dim=0)
