@@ -63,7 +63,7 @@ conf = {
 	"momentum" : 0.9,
 
 	# Number of classes
-	"num_classes": 100, # era a 2
+	"num_classes": 10,
 
 	# Number of parties/nodes
 	"num_parties": 8,
@@ -94,7 +94,7 @@ conf = {
 
 	"retrain":{
 		"epoch": 10,
-		"lr": 0.01,
+		"lr": 0.001,
 		"num_vr":2000
 	}
 }
