@@ -4,6 +4,7 @@ import os
 import torch
 import wandb
 from baseline_constants import conf
+from main import read_data
 
 def create_paths(args, current_time, alpha=None, resume=False):
     """ Create paths for checkpoints, plots, analysis results and experiment results. """
@@ -76,11 +77,17 @@ def check_init_paths(paths):
             exit(-1)
 
 def define_server_params(args, client_model, server_name, opt_ckpt):
+    
+    train_data_dir = os.path.join('..', 'data', args.dataset, 'data', 'train')
+    test_data_dir = os.path.join('..', 'data', args.dataset, 'data', 'test')
+
+    train_users, train_groups, test_users, test_groups, train_data, test_data = read_data(train_data_dir, test_data_dir, args.alpha)
+    
     if server_name == 'fedavg':
-        server_params = {'client_model': client_model}
+        server_params = {'client_model': client_model, 'test_data': test_data}
     elif server_name == 'fedopt':
         server_params = {'client_model': client_model, 'server_opt': args.server_opt, 'server_lr': args.server_lr,
-                         'momentum': args.server_momentum, 'opt_ckpt': opt_ckpt}
+                         'momentum': args.server_momentum, 'opt_ckpt': opt_ckpt, 'test_data': test_data}
     else:
         raise NotImplementedError
     return server_params

@@ -11,14 +11,16 @@ from .fedavg_server import Server
 
 
 class FedOptServer(Server):
-    def __init__(self, client_model, server_opt, server_lr, momentum=0, opt_ckpt=None):
+    def __init__(self, client_model, server_opt, server_lr, test_data, momentum=0, opt_ckpt=None):
         super().__init__(client_model)
         print("Server optimizer:", server_opt, "with lr", server_lr, "and momentum", momentum)
         self.server_lr = server_lr
         self.server_momentum = momentum
+        self.test_data = test_data
         self.server_opt = self._get_optimizer(server_opt)
         if opt_ckpt is not None:
             self.load_optimizer_checkpoint(opt_ckpt)
+       
 
     def train_model(self, num_epochs=1, batch_size=10, minibatch=None, clients=None, analysis=False):
         self.server_opt.zero_grad()
@@ -253,13 +255,13 @@ class FedOptServer(Server):
         return dataset
 
     def get_feature_label(self):
-        self.global_model.eval()
+        self.client_model.eval()
 
         cnt = 0
         features = []
         true_labels = []
         pred_labels = []
-        for batch_id, batch in enumerate(self.test_loader):
+        for batch_id, batch in enumerate(self.test_data):
             data, target = batch
             cnt += data.size()[0]
 
@@ -267,7 +269,7 @@ class FedOptServer(Server):
                 data = data.cuda()
                 target = target.cuda()
 
-            feature, output = self.global_model(data)
+            feature, output = self.client_model(data)
             pred = output.data.max(1)[1]  # get the index of the max log-probability
             
             features.append(feature)
