@@ -12,7 +12,7 @@ from .fedavg_server import Server
 
 
 class FedOptServer(Server):
-    def __init__(self, client_model, server_opt, server_lr, test_data, selected_clients, momentum=0, opt_ckpt=None):
+    def __init__(self, client_model, server_opt, server_lr, test_data, momentum=0, opt_ckpt=None):
         super().__init__(client_model)
         print("Server optimizer:", server_opt, "with lr", server_lr, "and momentum", momentum)
         self.server_lr = server_lr
