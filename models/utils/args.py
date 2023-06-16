@@ -184,11 +184,23 @@ def parse_args():
                         choices=SIM_TIMES,
                         default='large')
     
-    ## FEDCCVR ##
-    parser.add_argument('--ccvr',
-                        help='True if use CCVR',
-                        action='store_true',
-                        default=False)
+    # For tsne visualization
+    parser.add_argument('--model_before_calibration',
+                        default='./save_model/model-epoch9.pth',
+                        type=str,
+                        help='path to model before calibration')
+    parser.add_argument('--model_after_calibration',
+                        default='./save_model/model.pth',
+                        type=str,
+                        help='path to model after calibration')
+    parser.add_argument('--random_state',
+                        default=1,
+                        type=int,
+                        help='random state for tsne')
+    parser.add_argument('--save_path',
+                        default='./visualize/tsne.png',
+                        type=str,
+                        help='path to save tsne result')
     return parser.parse_args()
 
 def check_args(args):

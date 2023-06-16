@@ -21,6 +21,7 @@ from utils.cutout import Cutout
 from utils.main_utils import *
 from utils.model_utils import read_data
 from cifar100.retrain_model import ReTrainModel
+from utils.tsne_utils import get_data, FedTSNE
 
 os.environ["WANDB_API_KEY"] = "6870e110a376e0cd73be4659a284e4eea692d8dc"
 os.environ["WANDB_MODE"] = "online"
@@ -147,6 +148,8 @@ def main():
             swa_n = checkpoint['swa_n']
             print("SWA n:", swa_n)
         print("SWA starts @ round:", swa_start)
+        
+    max_acc = 0
 
     # Start training
     for i in range(start_round, num_rounds):
@@ -184,6 +187,13 @@ def main():
         if (i + 1) % eval_every == 0 or (i + 1) == num_rounds or (i+1) > num_rounds - 100:  # eval every round in last 100 rounds
             _, test_metrics = print_stats(i + 1, server, train_clients, train_client_num_samples, test_clients, test_client_num_samples,
                                                 args, fp)
+            
+            # Save the best model (useful for t-SNE visualization later on)
+            acc = test_metrics[0]
+            if acc >= max_acc:
+                torch.save(server.global_model.state_dict(), os.path.join(conf["model_dir"], "model-epoch{}.pth".format(i+1)))
+                max_acc = acc
+            
             """
             if (i+1) > num_rounds - 100:
                 last_accuracies.append(test_metrics[0])
@@ -245,7 +255,7 @@ def main():
 
     print("Finished generating virtual features")
     
-    ################### Classifier Re-Training ################################ using virtual representations
+    ################### Classifier Re-Training using virtual representations ##############################
         
     # We take out the classifier g from the global model, initialize its parameter as phi^,
     # and re-train the parameter to phi^ for the objective (see the paper) where l is the cross-entropy loss.
@@ -273,7 +283,7 @@ def main():
 
     # Update the global model using the retrained layers
     for name, param in retrain_model.state_dict().items():
-        server.model[name].copy_(param.clone())
+        server.client_model.state_dict()[name].copy_(param.clone())
 
 
     test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
@@ -281,6 +291,27 @@ def main():
 
     wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
     print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
+    
+    torch.save(server.client_model.state_dict(), os.path.join(conf["model_dir"],conf["model_file"]))
+
+    print("Federated training completed, the model is saved in the {0} directory!".format(conf["model_dir"]))
+    
+    # t-SNE visualization
+    
+    print('Start TSNE...')
+    server.client_model.load_state_dict(torch.load(args.model_before_calibration))
+    # Get feature vectors, true labels, and labels before calibration for the test dataset
+    tsne_features, tsne_true_labels, tsne_before_labels = server.get_feature_label()
+    # Get labels after calibration
+    server.client_model.load_state_dict(torch.load(args.model_after_calibration))
+    _, _, tsne_after_labels = server.get_feature_label()
+    # Perform t-SNE visualization
+    fed_tsne = FedTSNE(tsne_features.detach().cpu().numpy(), random_state=args.random_state)
+    fed_tsne.visualize_3(tsne_true_labels.detach().cpu().numpy(),
+                         tsne_before_labels.detach().cpu().numpy(),
+                         tsne_after_labels.detach().cpu().numpy(),
+                        figsize=(15, 3), save_path=args.save_path)
+    print('TSNE done.')
 
     ############################################################################################
 
