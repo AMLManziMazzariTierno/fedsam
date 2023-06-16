@@ -149,6 +149,9 @@ def main():
             print("SWA n:", swa_n)
         print("SWA starts @ round:", swa_start)
         
+    # Save the model
+    if not os.path.isdir(conf["model_dir"]):
+        os.mkdir(conf["model_dir"])    
     max_acc = 0
 
     # Start training
