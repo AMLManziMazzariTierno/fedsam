@@ -263,7 +263,7 @@ class FedOptServer(Server):
         true_labels = []
         pred_labels = []
         
-        for data in self.testloader:
+        for data in self.test_loader:
             
             input_tensor, labels_tensor = data[0].to(self.device), data[1].to(self.device)
             with torch.no_grad():
