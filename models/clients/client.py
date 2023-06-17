@@ -159,8 +159,8 @@ class Client:
         
         # Handle empty slices
         if np.isnan(mean).any() or np.isnan(cov).any():
-            mean = np.zeros(features.shape[1])
-            cov = np.zeros((features.shape[1], features.shape[1]))
+            mean = np.zeros(features.shape[0])
+            cov = np.zeros((features.shape[0], features.shape[0]))
 
         return mean,cov
 
