@@ -228,8 +228,10 @@ def main():
     client_mean = {}
     client_cov = {}
     client_length = {}
+    
+    server.select_clients(i, online(train_clients), num_clients=clients_per_round)
 
-    for client in test_clients:
+    for client in server.selected_clients:
         print("Local feature mean and covariance calculation...")
         # Client k computes local mean and covariance
         c_mean, c_cov, c_length = client.cal_distributions(server)
@@ -285,10 +287,8 @@ def main():
     # Update the global model using the retrained layers
     for name, param in retrain_model.state_dict().items():
         server.client_model.state_dict()[name].copy_(param.clone())
-        
-    server.update_model()
 
-    test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test')
+    test_stat_metrics = server.test_model(server.selected_clients, args.batch_size, set_to_use='test')
     test_metrics = print_metrics(test_stat_metrics, test_client_num_samples, fp, prefix='{}_'.format('test'))
     wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
     print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
