@@ -160,15 +160,18 @@ class Client:
         return mean,cov
 
     def cal_distributions(self, server):
-        server.update_model()
-        self.model.eval()
+        
+        for name, param in server.client_model.state_dict().items():
+            self._model.state_dict()[name].copy_(param.clone())
+        
+        self._model.eval()
 
+        features = []
         mean = []
         cov = []
         length = []
 
         for i in range(conf["num_classes"]):
-            features = []
             class_label = i  # Current class label
 
             if len(self.train_data) > 0:
@@ -178,11 +181,10 @@ class Client:
                     # Filter data based on the current class label
                     mask = target_data_tensor == class_label
                     filtered_input_data = input_data_tensor[mask]
-                    filtered_target_data = target_data_tensor[mask]
 
                     if len(filtered_input_data) > 0:
                         # Process filtered data through the model
-                        outputs, feature = self.model(filtered_input_data)
+                        outputs, feature = self._model(filtered_input_data)
                         features.extend(feature.tolist())
 
                 f_mean, f_cov = self._cal_mean_cov(features)
