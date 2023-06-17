@@ -228,10 +228,8 @@ def main():
     client_mean = {}
     client_cov = {}
     client_length = {}
-    
-    server.select_clients(i, online(train_clients), num_clients=clients_per_round)
 
-    for client in server.selected_clients:
+    for client in test_clients:
         print("Local feature mean and covariance calculation...")
         # Client k computes local mean and covariance
         c_mean, c_cov, c_length = client.cal_distributions(server)
