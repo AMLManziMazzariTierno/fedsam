@@ -241,6 +241,7 @@ class FedOptServer(Server):
 
         return g_mean, g_cov
 
+
     def get_dataset(conf, data):
         """
         :param conf: 配置

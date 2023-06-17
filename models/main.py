@@ -251,6 +251,7 @@ def main():
     for i in range(conf['num_classes']):
         mean = np.squeeze(np.array(g_mean[i]))
         # The optimal num_vr (M_c), number of virtual features, is 2000
+        g_cov[i] = make_symmetric_positive_semidefinite(g_cov[i])
         vr = np.random.multivariate_normal(mean, g_cov[i], conf["retrain"]["num_vr"]*2)
         retrain_vr.extend(vr.tolist()[:conf["retrain"]["num_vr"]])
         eval_vr.extend(vr.tolist()[conf["retrain"]["num_vr"]:])
@@ -287,9 +288,10 @@ def main():
     # Update the global model using the retrained layers
     for name, param in retrain_model.state_dict().items():
         server.client_model.state_dict()[name].copy_(param.clone())
+        
+    server.update_model()
 
-
-    test_stat_metrics = server.test_model(server.selected_clients, args.batch_size, set_to_use='test' )
+    test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test')
     test_metrics = print_metrics(test_stat_metrics, test_client_num_samples, fp, prefix='{}_'.format('test'))
     wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
     print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
@@ -341,6 +343,17 @@ def main():
 def online(clients):
     """We assume all users are always online."""
     return clients
+
+def make_symmetric_positive_semidefinite(matrix):
+        # Ensure the matrix is symmetric
+        matrix = (matrix + matrix.T) / 2
+
+        # Ensure the matrix is positive-semidefinite
+        eigenvalues, eigenvectors = np.linalg.eig(matrix)
+        eigenvalues[eigenvalues < 0] = 0
+        matrix = np.dot(eigenvectors, np.dot(np.diag(eigenvalues), eigenvectors.T))
+
+        return matrix
 
 
 def create_clients(users, train_data, test_data, model, args, ClientDataset, Client, run=None, device=None):
