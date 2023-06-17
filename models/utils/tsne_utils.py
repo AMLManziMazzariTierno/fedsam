@@ -93,7 +93,12 @@ class FedTSNE:
         """
         self.tsne = TSNE(n_components=2, learning_rate='auto', init='random', random_state=random_state)
         self.X_embedded = self.tsne.fit_transform(X)
-        self.colors = np.random.rand(100, 3)
+        self.colors = np.zeros((100, 3))
+        for i in range(100):
+            r = int(255 * (1 - i / 100))  # Red component decreases from 255 to 0
+            b = int(255 * (i / 100))      # Blue component increases from 0 to 255
+            self.colors[i] = [r, 0, b]
+        self.colors /= 255.0
 
     def visualize(self, y, title=None, save_path='./visualize/tsne.png'):
         assert y.shape[0] == self.X_embedded.shape[0]
