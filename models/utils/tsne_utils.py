@@ -4,6 +4,7 @@ from baseline_constants import conf
 from sklearn.utils import shuffle
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+import colorsys
 
 def label_skew(data,label,K,n_parties,beta,min_require_size = 10):
     """
@@ -93,12 +94,17 @@ class FedTSNE:
         """
         self.tsne = TSNE(n_components=2, learning_rate='auto', init='random', random_state=random_state)
         self.X_embedded = self.tsne.fit_transform(X)
-        self.colors = np.zeros((100, 3))
-        for i in range(100):
-            r = int(255 * (1 - i / 100))  # Red component decreases from 255 to 0
-            b = int(255 * (i / 100))      # Blue component increases from 0 to 255
-            self.colors[i] = [r, 0, b]
-        self.colors /= 255.0
+        self.colors = self.generate_colors(conf["num_classes"])
+        
+    def generate_colors(self, num_colors):
+        colors = []
+        for i in range(num_colors):
+            hue = i / num_colors  # Vary the hue component from 0 to 1
+            saturation = 0.8  # Adjust the saturation component (0 to 1)
+            value = 0.9  # Adjust the value component (0 to 1)
+            rgb = colorsys.hsv_to_rgb(hue, saturation, value)
+            colors.append(rgb)
+        return np.array(colors)
 
     def visualize(self, y, title=None, save_path='./visualize/tsne.png'):
         assert y.shape[0] == self.X_embedded.shape[0]
