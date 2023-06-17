@@ -93,8 +93,8 @@ conf = {
 	"model_file":"model.pth",
 
 	"retrain":{
-		"epoch": 30,
-		"lr": 0.001,
-		"num_vr":500
+		"epoch": 10,
+		"lr": 0.01,
+		"num_vr":2000
 	}
 }
