@@ -41,15 +41,6 @@ conf = {
 	# Model selection: mlp, simple-cnn, vgg, resnet20
 	"model_name" : "resnet20",
 
-	# Processing method: fed_ccvr
-	"no-iid": "fed_ccvr",
-
-	# Global epochs
-	"global_epochs" : 1000,
-
-	# Local epochs
-	"local_epochs" : 3,
-
 	# Dirichlet parameter
 	"beta" : 1000,
 

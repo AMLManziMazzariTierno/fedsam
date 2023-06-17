@@ -231,7 +231,7 @@ def main():
     
     server.select_clients(i, online(train_clients), num_clients=clients_per_round)
 
-    for client in server.selected_clients:
+    for client in test_clients:
         print("Local feature mean and covariance calculation...")
         # Client k computes local mean and covariance
         c_mean, c_cov, c_length = client.cal_distributions(server)
@@ -291,7 +291,6 @@ def main():
 
     test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
     test_metrics = print_metrics(test_stat_metrics, test_client_num_samples, fp, prefix='{}_'.format('test'))
-
     wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
     print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
     
