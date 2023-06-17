@@ -42,7 +42,7 @@ conf = {
 	"model_name" : "resnet20",
 
 	# Dirichlet parameter
-	"beta" : 1000,
+	"beta" : 0.5,
 
 	"batch_size" : 128,
 
@@ -86,6 +86,6 @@ conf = {
 	"retrain":{
 		"epoch": 10,
 		"lr": 0.01,
-		"num_vr":2000
+		"num_vr": 2000
 	}
 }

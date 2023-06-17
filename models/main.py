@@ -236,6 +236,13 @@ def main():
         client_mean[client.id] = c_mean
         client_cov[client.id] = c_cov
         client_length[client.id] = c_length
+    for client in test_clients:
+        print("Local feature mean and covariance calculation...")
+        # Client k computes local mean and covariance
+        c_mean, c_cov, c_length = client.cal_distributions(server)
+        client_mean[client.id] = c_mean
+        client_cov[client.id] = c_cov
+        client_length[client.id] = c_length
     print("Completed calculation of local feature means and covariances")
     
     # Calculation of the global mean and covariance
@@ -286,10 +293,14 @@ def main():
     for name, param in retrain_model.state_dict().items():
         server.client_model.state_dict()[name].copy_(param.clone())
 
-    test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test')
+    train_stat_metrics = server.test_model(train_clients, args.batch_size, set_to_use='train')
+    val_metrics = print_metrics(train_stat_metrics, train_client_num_samples, fp, prefix='train_')
+    
+    test_stat_metrics = server.test_model(test_clients, args.batch_size, set_to_use='test' )
     test_metrics = print_metrics(test_stat_metrics, test_client_num_samples, fp, prefix='{}_'.format('test'))
-    wandb.log({'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
-    print("After retraining global_acc: %f, global_loss: %f\n" % (test_metrics[0], test_metrics[1]))
+
+    wandb.log({'Validation accuracy': val_metrics[0], 'Validation loss': val_metrics[1],
+               'Test accuracy': test_metrics[0], 'Test loss': test_metrics[1]}, commit=False)
     
     torch.save(server.client_model.state_dict(), os.path.join(conf["model_dir"],conf["model_file"]))
 
