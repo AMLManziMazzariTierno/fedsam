@@ -63,7 +63,7 @@ conf = {
 	"momentum" : 0.9,
 
 	# Number of classes
-	"num_classes": 10,
+	"num_classes": 100,
 
 	# Number of parties/nodes
 	"num_parties": 8,
