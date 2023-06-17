@@ -155,8 +155,13 @@ class Client:
 
         features = np.array(features)
         mean = np.mean(features, axis=0)
+        cov = np.cov(features.T, bias=True)
+        
+        # Handle empty slices
+        if np.isnan(mean).any() or np.isnan(cov).any():
+            mean = np.zeros(features.shape[1])
+            cov = np.zeros((features.shape[1], features.shape[1]))
 
-        cov = np.cov(features.T, bias=1)
         return mean,cov
 
     def cal_distributions(self, server):
@@ -170,6 +175,8 @@ class Client:
         mean = []
         cov = []
         length = []
+        
+        filtered_input_data = self.train_data
 
         for i in range(conf["num_classes"]):
             class_label = i  # Current class label
