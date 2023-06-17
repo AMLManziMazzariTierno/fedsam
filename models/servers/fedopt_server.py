@@ -273,7 +273,7 @@ class FedOptServer(Server):
                 
                 input_tensor, labels_tensor = data[0].to(self.device), data[1].to(self.device)
                 with torch.no_grad():
-                    outputs, feature = self.model(input_tensor)
+                    outputs, feature = self.client_model(input_tensor)
                     test_loss += F.cross_entropy(outputs, labels_tensor, reduction='sum').item()
                     _, pred = torch.max(outputs.data, 1)  # same as torch.argmax()
                     features.append(feature)
