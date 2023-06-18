@@ -179,31 +179,31 @@ class Client:
         print("Client ", self.id, "has", len(self._classes), "classes")
 
         for i in self._classes:
+            # Code snippet for creating train_i_dataset
+            train_i_dataset = copy.deepcopy(self.train_data)
+            train_i_dataset.data = []
+            train_i_dataset.targets = []
+
+            class_index = self._classes.index(i)
+            for j in range(len(self.train_data)):
+                if self.train_data.targets[j] == class_index:
+                    train_i_dataset.data.append(self.train_data.data[j])
+                    train_i_dataset.targets.append(class_index)
+
+            train_i_dataset.data = np.array(train_i_dataset.data)
+            train_i_dataset.targets = np.array(train_i_dataset.targets)
+
             if len(train_i_dataset) > 0:
-                # Code snippet for creating train_i_dataset
-                train_i_dataset = copy.deepcopy(self.train_data)
-                train_i_dataset.data = []
-                train_i_dataset.targets = []
-
-                class_index = self._classes.index(i)
-                for j in range(len(self.train_data)):
-                    if self.train_data.targets[j] == class_index:
-                        train_i_dataset.data.append(self.train_data.data[j])
-                        train_i_dataset.targets.append(class_index)
-
-                train_i_dataset.data = np.array(train_i_dataset.data)
-                train_i_dataset.targets = np.array(train_i_dataset.targets)
-
                 train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
                 for j, data in enumerate(train_i_loader):
                     input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
                     outputs, feature = self._model(input_data_tensor)
                     features.extend(feature.tolist())
                     f_mean, f_cov = self._cal_mean_cov(features)
-            else:
-                print("Class", i, "has no samples")
-                f_mean = np.zeros((64,))
-                f_cov = np.zeros((64, 64))
+                else:
+                    print("Class", i, "has no samples")
+                    f_mean = np.zeros((64,))
+                    f_cov = np.zeros((64, 64))
 
         mean.append(f_mean)
         cov.append(f_cov)
