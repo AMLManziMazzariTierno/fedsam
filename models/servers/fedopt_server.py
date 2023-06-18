@@ -215,7 +215,8 @@ class FedOptServer(Server):
 
             # total number of samples for class c
             for client in train_clients:
-                print(client.num_samples_per_class.keys())
+                for key, value in client.num_samples_per_class.items():
+                    print(key, ' : ', value)
                 n_c += client.num_samples_per_class[c]
 
             cov_ck = np.zeros_like(client_cov[clients[0]][0])
