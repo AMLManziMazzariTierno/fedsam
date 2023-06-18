@@ -163,47 +163,32 @@ class Client:
         server.update_model()
         self.model.eval()
 
-        means = []
-        covs = []
-        lengths = []
+        mean = []
+        cov = []
+        length = []
 
         for class_label in self._classes:
-            # Filter training data based on class label
+            # Filter the training data based on the class label
             filtered_data = self.filter_data_by_label(self.train_data, class_label)
+            filtered_loader = torch.utils.data.DataLoader(filtered_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
-            # Extract features from filtered data
-            features = self.extract_features(filtered_data)
+            # Collect features for the current class
+            features = []
 
-            # Calculate mean and covariance for the class
-            mean, cov = self._cal_mean_cov(features)
+            for j, data in enumerate(filtered_loader):
+                input_tensor, _ = data[0].to(self.device), data[1].to(self.device)
+                with torch.no_grad():
+                    _, feature = self.model(input_tensor)
+                    features.append(feature.cpu().numpy())
 
-            # Store mean, covariance, and length
-            means.append(mean)
-            covs.append(cov)
-            lengths.append(len(filtered_data))
+            # Calculate the mean and covariance for the current class
+            class_mean, class_cov = self._cal_mean_cov(features)
 
-        return means, covs, lengths
+            mean.append(class_mean)
+            cov.append(class_cov)
+            length.append(len(filtered_data))
 
-    def filter_data_by_label(self, data, class_label):
-        """Filter data based on the class label"""
-        filtered_data = copy.deepcopy(data)
-        filtered_data.imgs = [img for img, label in zip(filtered_data.imgs, filtered_data.labels) if label == class_label]
-        filtered_data.labels = [label for label in filtered_data.labels if label == class_label]
-        return filtered_data
-
-    def extract_features(self, data):
-        """Extract features from data using the client's model"""
-        features = []
-
-        dataloader = torch.utils.data.DataLoader(data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
-        for inputs, _ in dataloader:
-            inputs = inputs.to(self.device)
-            with torch.no_grad():
-                _, feature = self.model(inputs)
-            features.append(feature.cpu().numpy())
-
-        features = np.concatenate(features, axis=0)
-        return features
+        return mean, cov, length
 
 
     @property
