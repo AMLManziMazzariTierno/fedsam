@@ -197,7 +197,7 @@ class Client:
 
         return mean, cov, length
     
-    def filter_data_by_label(data, class_label):
+    def filter_data_by_label(self, data, class_label):
         """Filter data based on the class label"""
         filtered_data = copy.deepcopy(data)
         filtered_data.imgs = [img for img, label in zip(filtered_data.imgs, filtered_data.labels) if label == class_label]
