@@ -159,8 +159,8 @@ class Client:
         
         # Handle empty slices
         if np.isnan(mean).any() or np.isnan(cov).any():
-            mean = np.zeros(features.shape[0])
-            cov = np.zeros((features.shape[0], features.shape[0]))
+            mean = np.zeros((64,))
+            cov = np.zeros((64, 64))
 
         return mean,cov
 
@@ -178,7 +178,7 @@ class Client:
         
         filtered_input_data = self.train_data
 
-        for i in range(conf["num_classes"]):
+        for i in self._classes:
             class_label = i  # Current class label
 
             if len(self.train_data) > 0:
@@ -193,9 +193,10 @@ class Client:
                         # Process filtered data through the model
                         outputs, feature = self._model(filtered_input_data)
                         features.extend(feature.tolist())
-
-                f_mean, f_cov = self._cal_mean_cov(features)
-
+                        f_mean, f_cov = self._cal_mean_cov(features)
+                    else:
+                        f_mean = np.zeros((64,))
+                        f_cov = np.zeros((64, 64))
             else:
                 f_mean = np.zeros((64,))
                 f_cov = np.zeros((64, 64))
