@@ -169,7 +169,7 @@ class Client:
 
         for i in range(conf["num_classes"]):
             features = []
-            class_label = i + 1
+            class_label = i
             
             # Filter the train_data based on the current class label
             filtered_train_data = self.filter_data_by_label(self.train_data, class_label)
