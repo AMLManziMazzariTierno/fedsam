@@ -171,11 +171,11 @@ class Client:
         for i in range(conf["num_classes"]):
             features = []
             class_label = i  # Set the current class label
-
-            if len(self.train_data) > 0:
-                # Filter the train_data based on the current class label
-                filtered_train_data = self.filter_data_by_class_label(class_label)
-
+            
+            # Filter the train_data based on the current class label
+            filtered_train_data = self.filter_data_by_class_label(class_label)
+            
+            if len(filtered_train_data) > 0:
                 # Create a DataLoader for the filtered train_data
                 filtered_trainloader = torch.utils.data.DataLoader(filtered_train_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
