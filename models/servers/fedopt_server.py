@@ -204,30 +204,31 @@ class FedOptServer(Server):
 
         g_mean = []
         g_cov = []
+        n = {}
 
         for c in range(1,conf["num_classes"]):
 
             mean_c = np.zeros_like(client_mean[train_clients_ids[0]][0])
             cov_ck = np.zeros_like(client_cov[train_clients_ids[0]][0])
             mul_mean = np.zeros_like(client_cov[train_clients_ids[0]][0])
-            n_c = 0
-            
+            n.setdefault(c, 0)
             for client in train_clients:
-                n_c += client.number_of_samples_per_class()[c]
+                n.setdefault(c, 0)
+                n[c] += client.number_of_samples_per_class()[c]
 
             for client in train_clients:
                 # local mean
                 mean_ck = np.array(client_mean[client.id][c])
                 # global mean
-                mean_c += (client_length[client.id][c] / n_c) * mean_ck  # equation (3)
-                cov_ck += ((client_length[client.id][c] - 1) / (n_c - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
-                mul_mean += ((client_length[client.id][c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
+                mean_c += (client_length[client.id][c] / n[c]) * mean_ck  # equation (3)
+                cov_ck += ((client_length[client.id][c] - 1) / (n[c] - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
+                mul_mean += ((client_length[client.id][c]) / (n[c] - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
 
 
             g_mean.append(mean_c)
 
             # global covariance
-            cov_c = cov_ck + mul_mean - (n_c / (n_c - 1)) * np.dot(mean_c.T, mean_c)  # equation (4)
+            cov_c = cov_ck + mul_mean - (n[c] / (n[c] - 1)) * np.dot(mean_c.T, mean_c)  # equation (4)
 
             g_cov.append(cov_c)
 
