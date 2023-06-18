@@ -188,6 +188,7 @@ class Client:
 
                 f_mean, f_cov = self._cal_mean_cov(features)
             else:
+                print("No data for class", class_label)
                 f_mean = np.zeros((64,))
                 f_cov = np.zeros((64, 64))
 
