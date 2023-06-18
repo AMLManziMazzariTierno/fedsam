@@ -278,6 +278,7 @@ def main():
         reset_name.append(name)
 
     # Initialize the retraining model
+    grad_by_param = server.get_model_grad_by_param()
     for param, grad in grad_by_param.items():
         name = 'params_grad/' + param
         if name in reset_name:
