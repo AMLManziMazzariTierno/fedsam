@@ -180,12 +180,15 @@ class Client:
 
         for i in self._classes:
             class_label = i  # Current class label
+            print("Class label:", class_label)
             for j, data in enumerate(self.trainloader):
                 input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
 
                 # Filter data based on the current class label
                 mask = target_data_tensor == class_label
                 filtered_input_data = input_data_tensor[mask]
+                print("Filtered data:", filtered_input_data.shape)
+                print("Filtered data len:", len(filtered_input_data))
 
                 # Process filtered data through the model
                 if len(filtered_input_data) > 0:
