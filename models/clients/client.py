@@ -189,6 +189,7 @@ class Client:
                     features.extend(feature.tolist())
                     f_mean, f_cov = self._cal_mean_cov(features)
             else:
+                print("Class", i, "has no samples")
                 f_mean = np.zeros((64,))
                 f_cov = np.zeros((64, 64))
 
