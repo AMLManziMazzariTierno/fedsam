@@ -178,8 +178,9 @@ class Client:
         
         filtered_input_data = self.train_data
         print("Print train data")
-        for i in self.train_data:
-            print(self.train_data[i])
+        for imgs, targets in self.train_data:
+            print(self.imgs)
+            print(self.targets)
 
         for i in self._classes:
             class_label = i  # Current class label
