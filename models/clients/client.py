@@ -167,9 +167,9 @@ class Client:
         cov = []
         length = []
 
-        for class_label in self._classes:
+        for class_label in range(conf["num_classes"]):
             # Filter the training data based on the class label
-            filtered_data = self.filter_data_by_label(self.train_data, class_label)
+            filtered_data = self.filter_data_by_label(self.train_data, class_label + 1)
             if len(filtered_data) > 0:
                 filtered_loader = torch.utils.data.DataLoader(filtered_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
