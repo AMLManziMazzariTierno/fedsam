@@ -177,30 +177,19 @@ class Client:
         length = []
         
         filtered_input_data = self.train_data
-        print("Print train data")
-        for imgs, targets in self.train_data:
-            print(targets)
 
         for i in self._classes:
-            class_label = i  # Current class label
-            print("Class label:", class_label)
-            train_i = filtered_input_data[filtered_input_data == class_label]
-            for j, data in enumerate(self.trainloader):
-                input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
-
-                # Filter data based on the current class label
-                print("Target data tensor:", target_data_tensor)
-                mask = target_data_tensor == class_label
-                filtered_input_data = input_data_tensor[mask]
-
-                # Process filtered data through the model
-                if len(filtered_input_data) > 0:
-                    outputs, feature = self._model(filtered_input_data)
+            filtered_input_data = self.train_data[filtered_input_data == i]
+            if len(filtered_input_data) > 0:
+                train_i_loader = torch.utils.data.DataLoader(filtered_input_data, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
+                for j, data in enumerate(train_i_loader):
+                    input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
+                    outputs, feature = self._model(input_data_tensor)
                     features.extend(feature.tolist())
                     f_mean, f_cov = self._cal_mean_cov(features)
-                else:
-                    f_mean = np.zeros((64,))
-                    f_cov = np.zeros((64, 64))
+            else:
+                f_mean = np.zeros((64,))
+                f_cov = np.zeros((64, 64))
 
             mean.append(f_mean)
             cov.append(f_cov)
