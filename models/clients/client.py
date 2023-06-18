@@ -183,10 +183,9 @@ class Client:
             print("Class", i, "has", len(filtered_input_data), "samples")
             if len(filtered_input_data) > 0:
                 train_i_loader = torch.utils.data.DataLoader(filtered_input_data, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
-                print("Class", i, "has", len(train_i_loader), "batches")
-                for batch_id, batch in enumerate(train_i_loader):
-                    data, target = batch
-                    outputs, feature = self._model(data)
+                for j, data in enumerate(train_i_loader):
+                    input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
+                    outputs, feature = self._model(input_data_tensor)
                     features.extend(feature.tolist())
                     f_mean, f_cov = self._cal_mean_cov(features)
             else:
