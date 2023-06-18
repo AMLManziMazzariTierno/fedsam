@@ -175,6 +175,7 @@ class Client:
             filtered_train_data = self.filter_data_by_label(self.train_data, class_label)
             
             if len(filtered_train_data) > 0:
+                print("INSIDE!")
                 # Create a DataLoader for the filtered train_data
                 filtered_trainloader = torch.utils.data.DataLoader(filtered_train_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
@@ -187,7 +188,6 @@ class Client:
 
                 f_mean, f_cov = self._cal_mean_cov(features)
             else:
-                print("No data for class", class_label)
                 f_mean = np.zeros((64,))
                 f_cov = np.zeros((64, 64))
 
