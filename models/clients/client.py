@@ -10,6 +10,7 @@ import warnings
 from baseline_constants import ACCURACY_KEY, conf
 from datetime import datetime
 from cifar100.dataset import get_dataset
+from cifar100.dataloader import ClientDataset
 
 
 class Client:
@@ -155,61 +156,50 @@ class Client:
 
         features = np.array(features)
         mean = np.mean(features, axis=0)
-        cov = np.cov(features.T, bias=True)
-        
-        # Handle empty slices
-        if np.isnan(mean).any() or np.isnan(cov).any():
-            mean = np.zeros((64,))
-            cov = np.zeros((64, 64))
 
+        cov = np.cov(features.T, bias=1)
         return mean,cov
 
     def cal_distributions(self, server):
-        
-        for name, param in server.client_model.state_dict().items():
-            self._model.state_dict()[name].copy_(param.clone())
-        
-        self._model.eval()
+        server.update_model()
+        self.model.eval()
 
-        features = []
         mean = []
         cov = []
         length = []
-        
-        print("Client ", self.id, "has", len(self._classes), "classes")
 
-        for i in self._classes:
-            # Code snippet for creating train_i_dataset
-            train_i_dataset = copy.deepcopy(self.train_data)
-            train_i_dataset.data = []
-            train_i_dataset.targets = []
+        for i in range(conf["num_classes"]):
+            features = []
+            class_label = i  # Set the current class label
 
-            class_index = self._classes.index(i)
-            for j in range(len(self.train_data)):
-                if self.train_data.labels[j] == class_index:
-                    train_i_dataset.data.append(self.train_data.data[j])
-                    train_i_dataset.targets.append(class_index)
+            if len(self.train_data) > 0:
+                # Filter the train_data based on the current class label
+                filtered_train_data = self.filter_data_by_class_label(class_label)
 
-            train_i_dataset.data = np.array(train_i_dataset.data)
-            train_i_dataset.targets = np.array(train_i_dataset.targets)
+                # Create a DataLoader for the filtered train_data
+                filtered_trainloader = torch.utils.data.DataLoader(filtered_train_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
-            if len(train_i_dataset) > 0:
-                train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
-                for j, data in enumerate(train_i_loader):
+                for j, data in enumerate(filtered_trainloader):
                     input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
-                    outputs, feature = self._model(input_data_tensor)
-                    features.extend(feature.tolist())
-                    f_mean, f_cov = self._cal_mean_cov(features)
-                else:
-                    print("Class", i, "has no samples")
-                    f_mean = np.zeros((64,))
-                    f_cov = np.zeros((64, 64))
 
-        mean.append(f_mean)
-        cov.append(f_cov)
-        length.append(len(train_i_dataset))
+                    # Process filtered data through the model
+                    outputs, feature = self.model(input_data_tensor)
+                    features.extend(feature.tolist())
+
+                f_mean, f_cov = self._cal_mean_cov(features)
+            else:
+                f_mean = np.zeros((64,))
+                f_cov = np.zeros((64, 64))
+
+            mean.append(f_mean)
+            cov.append(f_cov)
+            length.append(len(filtered_train_data))
 
         return mean, cov, length
+    
+    def filter_data_by_class_label(self, class_label):
+        filtered_data = [data for data in self.train_data if data[1] == class_label]
+        return ClientDataset(filtered_data, train=True, loading='training_time')
 
 
     @property
