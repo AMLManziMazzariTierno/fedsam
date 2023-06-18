@@ -199,7 +199,7 @@ class Client:
     
     def filter_data_by_class_label(self, class_label):
         filtered_data = [data for data in self.train_data if data[1] == class_label]
-        return ClientDataset(filtered_data, train=True, loading='training_time')
+        return filtered_data
 
 
     @property
