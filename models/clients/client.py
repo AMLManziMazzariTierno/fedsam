@@ -186,13 +186,15 @@ class Client:
                     features.extend(feature.tolist())
 
                 f_mean, f_cov = self._cal_mean_cov(features)
+                f_length = len(filtered_train_data)
             else:
                 f_mean = np.zeros((64,))
                 f_cov = np.zeros((64, 64))
+                f_length = 0
 
             mean.append(f_mean)
             cov.append(f_cov)
-            length.append(len(filtered_train_data))
+            length.append(f_length)
 
         return mean, cov, length
     
