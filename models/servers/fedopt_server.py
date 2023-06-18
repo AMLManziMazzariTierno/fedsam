@@ -207,7 +207,7 @@ class FedOptServer(Server):
 
         clients = list(client_mean.keys())
 
-        for c in range(1,len(client_mean[clients[0]])):
+        for c in range(1,conf["num_classes"]):
 
             mean_c = np.zeros_like(client_mean[clients[0]][0])
             # n_c is the total number of samples of class c for all the clients
@@ -215,8 +215,8 @@ class FedOptServer(Server):
 
             # total number of samples for class c
             for client in train_clients:
-                n_c += client.num_samples_per_class
-                print("client.num_samples_per_class:", n_c)
+                print(client.num_samples_per_class[c])
+                n_c += client.num_samples_per_class[c]
 
             cov_ck = np.zeros_like(client_cov[clients[0]][0])
             mul_mean = np.zeros_like(client_cov[clients[0]][0])
@@ -241,6 +241,7 @@ class FedOptServer(Server):
             g_cov.append(cov_c)
             
             for client in test_clients:
+                print(client.num_samples_per_class[c])
                 n_c += client.num_samples_per_class[c]
 
             cov_ck = np.zeros_like(client_cov[clients[0]][0])
