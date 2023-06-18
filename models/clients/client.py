@@ -176,14 +176,13 @@ class Client:
         cov = []
         length = []
         
-        filtered_input_data = []
-        
         print("Client ", self.id, "has", len(self._classes), "classes")
 
         for i in self._classes:
-            filtered_input_data = [x for x in self.train_data if x[1] == i + 1]
-            if len(filtered_input_data) > 0:
-                train_i_loader = torch.utils.data.DataLoader(filtered_input_data, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
+            train_i = self.train_data[self.train_data[conf["label_column"]] == i]
+            train_i_dataset = get_dataset(conf, train_i)
+            if len(train_i_dataset) > 0:
+                train_i_loader = torch.utils.data.DataLoader(train_i_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
                 for j, data in enumerate(train_i_loader):
                     input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
                     outputs, feature = self._model(input_data_tensor)
@@ -196,7 +195,7 @@ class Client:
 
             mean.append(f_mean)
             cov.append(f_cov)
-            length.append(len(filtered_input_data))
+            length.append(len(train_i))
 
         return mean, cov, length
 
