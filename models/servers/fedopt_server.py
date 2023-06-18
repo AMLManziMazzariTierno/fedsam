@@ -207,7 +207,7 @@ class FedOptServer(Server):
 
         clients = list(client_mean.keys())
 
-        for c in range(len(client_mean[clients[0]])):
+        for c in range(1,len(client_mean[clients[0]])):
 
             mean_c = np.zeros_like(client_mean[clients[0]][0])
             # n_c is the total number of samples of class c for all the clients
