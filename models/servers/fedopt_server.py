@@ -205,7 +205,7 @@ class FedOptServer(Server):
         g_mean = []
         g_cov = []
 
-        for c in range(len(client_mean[train_clients_ids[0]])):
+        for c in range(1,conf["num_classes"]):
 
             mean_c = np.zeros_like(client_mean[train_clients_ids[0]][0])
             cov_ck = np.zeros_like(client_cov[train_clients_ids[0]][0])
