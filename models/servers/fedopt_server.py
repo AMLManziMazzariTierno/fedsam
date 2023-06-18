@@ -226,8 +226,6 @@ class FedOptServer(Server):
                 mean_ck = np.array(client_mean[k][c])
                 # global mean
                 mean_c += (client_length[k][c] / n_c) * mean_ck  # equation (3)
-
-
                 cov_ck += ((client_length[k][c] - 1) / (n_c - 1)) * np.array(client_cov[k][c]) # first term in equation (4)
                 mul_mean += ((client_length[k][c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
 
