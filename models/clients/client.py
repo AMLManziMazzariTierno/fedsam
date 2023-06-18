@@ -178,8 +178,8 @@ class Client:
         
         filtered_input_data = []
 
-        for i in conf["num_classes"]:
-            filtered_input_data = [x for x in self.train_data if x[1] == i]
+        for i in range(conf["num_classes"]):
+            filtered_input_data = [x for x in self.train_data if x[1] == i + 1]
             if len(filtered_input_data) > 0:
                 train_i_loader = torch.utils.data.DataLoader(filtered_input_data, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
                 for j, data in enumerate(train_i_loader):
