@@ -253,7 +253,7 @@ def main():
     retrain_vr = []
     label = []
     eval_vr = []
-    for i in range(conf['num_classes']):
+    for i in range(1,conf['num_classes']):
         mean = np.squeeze(np.array(g_mean[i]))
         # The optimal num_vr (M_c), number of virtual features, is 2000
         vr = np.random.multivariate_normal(mean, g_cov[i], conf["retrain"]["num_vr"]*2)
