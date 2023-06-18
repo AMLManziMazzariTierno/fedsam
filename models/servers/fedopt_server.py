@@ -211,10 +211,10 @@ class FedOptServer(Server):
             mean_c = np.zeros_like(client_mean[train_clients_ids[0]][0])
             cov_ck = np.zeros_like(client_cov[train_clients_ids[0]][0])
             mul_mean = np.zeros_like(client_cov[train_clients_ids[0]][0])
-            n.setdefault(c, 0)
+            
             for client in train_clients:
                 n.setdefault(c, 0)
-                n[c] += client.number_of_samples_per_class()[c]
+                n[c] += client.number_of_samples_per_class().get(c, 0)
 
             for client in train_clients:
                 # local mean
