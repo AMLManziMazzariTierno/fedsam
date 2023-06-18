@@ -180,7 +180,7 @@ class Client:
                     input_tensor, _ = data[0].to(self.device), data[1].to(self.device)
                     with torch.no_grad():
                         _, feature = self.model(input_tensor)
-                        features.append(feature.cpu().numpy())
+                        features.extend(feature.tolist())
 
                 # Calculate the mean and covariance for the current class
                 class_mean, class_cov = self._cal_mean_cov(features)
