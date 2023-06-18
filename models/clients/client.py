@@ -178,7 +178,7 @@ class Client:
         
         filtered_input_data = []
 
-        for i in self._classes:
+        for i in conf["num_classes"]:
             filtered_input_data = [x for x in self.train_data if x[1] == i]
             print("Class", i, "has", len(filtered_input_data), "samples")
             if len(filtered_input_data) > 0:
