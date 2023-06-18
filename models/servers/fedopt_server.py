@@ -222,14 +222,15 @@ class FedOptServer(Server):
             mul_mean = np.zeros_like(client_cov[clients[0]][0])
 
             for client in train_clients:
-                if (c in list(client.num_samples_per_class.keys())) & n_c != 0:
-                    # local mean
-                    mean_ck = np.array(client_mean[client.id][c])
-                    # global mean
-                    mean_c += (client.num_samples_per_class[c] / n_c) * mean_ck  # equation (3)
+                if c in list(client.num_samples_per_class.keys()):
+                    if n_c != 0:
+                        # local mean
+                        mean_ck = np.array(client_mean[client.id][c])
+                        # global mean
+                        mean_c += (client.num_samples_per_class[c] / n_c) * mean_ck  # equation (3)
 
-                    cov_ck += ((client.num_samples_per_class[c] - 1) / (n_c - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
-                    mul_mean += ((client.num_samples_per_class[c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
+                        cov_ck += ((client.num_samples_per_class[c] - 1) / (n_c - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
+                        mul_mean += ((client.num_samples_per_class[c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
 
             if n_c != 0:
                 g_mean.append(mean_c)
@@ -244,14 +245,15 @@ class FedOptServer(Server):
             mul_mean = np.zeros_like(client_cov[clients[0]][0])
 
             for c in list(client.num_samples_per_class.keys()) in test_clients:
-                if (c in list(client.num_samples_per_class.keys())) & n_c != 0:
-                    # local mean
-                    mean_ck = np.array(client_mean[client.id][c])
-                    # global mean
-                    mean_c += (client.num_samples_per_class[c] / n_c) * mean_ck  # equation (3)
+                if c in list(client.num_samples_per_class.keys()):
+                    if n_c != 0:
+                        # local mean
+                        mean_ck = np.array(client_mean[client.id][c])
+                        # global mean
+                        mean_c += (client.num_samples_per_class[c] / n_c) * mean_ck  # equation (3)
 
-                    cov_ck += ((client.num_samples_per_class[c] - 1) / (n_c - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
-                    mul_mean += ((client.num_samples_per_class[c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
+                        cov_ck += ((client.num_samples_per_class[c] - 1) / (n_c - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
+                        mul_mean += ((client.num_samples_per_class[c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
                     
             if n_c != 0:
                 g_mean.append(mean_c)
