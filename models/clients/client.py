@@ -165,8 +165,8 @@ class Client:
 
         mean = []
         cov = []
-        length = []
-
+        n_ck = []
+        
         for class_label in range(conf["num_classes"]):
             # Filter the training data based on the class label
             filtered_data = self.filter_data_by_label(self.train_data, class_label + 1)
@@ -190,9 +190,8 @@ class Client:
 
             mean.append(class_mean)
             cov.append(class_cov)
-            length.append(len(filtered_data))
 
-        return mean, cov, length
+        return mean, cov
 
     def filter_data_by_label(self, data, class_label):
         """Filter data based on the class label"""
