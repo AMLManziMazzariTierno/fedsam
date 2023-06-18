@@ -163,47 +163,47 @@ class Client:
         server.update_model()
         self.model.eval()
 
-        mean = []
-        cov = []
-        length = []
+        means = []
+        covs = []
+        lengths = []
 
-        for i in range(1,conf['num_classes']):
-            features = []
-            class_label = i
-            
-            # Filter the train_data based on the current class label
-            filtered_train_data = self.filter_data_by_label(self.train_data, class_label)
-            
-            if len(filtered_train_data) > 0:
-                # Create a DataLoader for the filtered train_data
-                filtered_trainloader = torch.utils.data.DataLoader(filtered_train_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+        for class_label in self._classes:
+            # Filter training data based on class label
+            filtered_data = self.filter_data_by_label(self.train_data, class_label)
 
-                for j, data in enumerate(filtered_trainloader):
-                    input_data_tensor, target_data_tensor = data[0].to(self.device), data[1].to(self.device)
+            # Extract features from filtered data
+            features = self.extract_features(filtered_data)
 
-                    # Process filtered data through the model
-                    outputs, feature = self.model(input_data_tensor)
-                    features.extend(feature.tolist())
+            # Calculate mean and covariance for the class
+            mean, cov = self._cal_mean_cov(features)
 
-                f_mean, f_cov = self._cal_mean_cov(features)
-                f_length = len(filtered_train_data)
-            else:
-                f_mean = np.zeros((64,))
-                f_cov = np.zeros((64, 64))
-                f_length = 0
+            # Store mean, covariance, and length
+            means.append(mean)
+            covs.append(cov)
+            lengths.append(len(filtered_data))
 
-            mean.append(f_mean)
-            cov.append(f_cov)
-            length.append(f_length)
+        return means, covs, lengths
 
-        return mean, cov, length
-    
     def filter_data_by_label(self, data, class_label):
         """Filter data based on the class label"""
         filtered_data = copy.deepcopy(data)
         filtered_data.imgs = [img for img, label in zip(filtered_data.imgs, filtered_data.labels) if label == class_label]
         filtered_data.labels = [label for label in filtered_data.labels if label == class_label]
         return filtered_data
+
+    def extract_features(self, data):
+        """Extract features from data using the client's model"""
+        features = []
+
+        dataloader = torch.utils.data.DataLoader(data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+        for inputs, _ in dataloader:
+            inputs = inputs.to(self.device)
+            with torch.no_grad():
+                _, feature = self.model(inputs)
+            features.append(feature.cpu().numpy())
+
+        features = np.concatenate(features, axis=0)
+        return features
 
 
     @property

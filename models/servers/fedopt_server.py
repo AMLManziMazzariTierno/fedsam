@@ -194,7 +194,7 @@ class FedOptServer(Server):
 
         return self.retrain_model
 
-    def cal_global_gd(self,client_mean, client_cov, client_length, train_clients, train_clients_ids):
+    def cal_global_gd(self,client_mean, client_cov, client_length):
         """
         :param client_mean: dictionary of mean values of features for each client
         :param client_cov:  dictionary of covariance matrices of features for each client
@@ -204,31 +204,38 @@ class FedOptServer(Server):
 
         g_mean = []
         g_cov = []
-        n = {}
 
-        for c in range(1,conf["num_classes"]):
+        clients = list(client_mean.keys())
 
-            mean_c = np.zeros_like(client_mean[train_clients_ids[0]][0])
-            cov_ck = np.zeros_like(client_cov[train_clients_ids[0]][0])
-            mul_mean = np.zeros_like(client_cov[train_clients_ids[0]][0])
-            
-            for client in train_clients:
-                n.setdefault(c, 0)
-                n[c] += client.number_of_samples_per_class().get(c, 0)
+        for c in range(len(client_mean[clients[0]])):
 
-            for client in train_clients:
+            mean_c = np.zeros_like(client_mean[clients[0]][0])
+            # n_c is the total number of samples of class c for all the clients
+            n_c = 0
+
+            # total number of samples for class c
+            for k in clients:
+                n_c += client_length[k][c]
+
+            cov_ck = np.zeros_like(client_cov[clients[0]][0])
+            mul_mean = np.zeros_like(client_cov[clients[0]][0])
+
+            for k in clients:
+
                 # local mean
-                mean_ck = np.array(client_mean[client.id][c])
+                mean_ck = np.array(client_mean[k][c])
                 # global mean
-                mean_c += (client_length[client.id][c] / n[c]) * mean_ck  # equation (3)
-                cov_ck += ((client_length[client.id][c] - 1) / (n[c] - 1)) * np.array(client_cov[client.id][c]) # first term in equation (4)
-                mul_mean += ((client_length[client.id][c]) / (n[c] - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
+                mean_c += (client_length[k][c] / n_c) * mean_ck  # equation (3)
+
+
+                cov_ck += ((client_length[k][c] - 1) / (n_c - 1)) * np.array(client_cov[k][c]) # first term in equation (4)
+                mul_mean += ((client_length[k][c]) / (n_c - 1)) * np.dot(mean_ck.T, mean_ck) # second term in equation (4)
 
 
             g_mean.append(mean_c)
 
             # global covariance
-            cov_c = cov_ck + mul_mean - (n[c] / (n[c] - 1)) * np.dot(mean_c.T, mean_c)  # equation (4)
+            cov_c = cov_ck + mul_mean - (n_c / (n_c - 1)) * np.dot(mean_c.T, mean_c)  # equation (4)
 
             g_cov.append(cov_c)
 

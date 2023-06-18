@@ -246,7 +246,7 @@ def main():
     print("Completed calculation of local feature means and covariances")
     
     # Calculation of the global mean and covariance
-    g_mean, g_cov = server.cal_global_gd(client_mean, client_cov, client_length, train_clients, train_client_ids)
+    g_mean, g_cov = server.cal_global_gd(client_mean, client_cov, client_length)
     print("Global mean and covariance calculated")
 
     # Generate a set of Gc virtual features with ground truth label c from the Gaussian distribution.
