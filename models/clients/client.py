@@ -186,7 +186,7 @@ class Client:
 
             class_index = self._classes.index(i)
             for j in range(len(self.train_data)):
-                if self.train_data.targets[j] == class_index:
+                if self.train_data.labels[j] == class_index:
                     train_i_dataset.data.append(self.train_data.data[j])
                     train_i_dataset.targets.append(class_index)
 
