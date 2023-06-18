@@ -177,8 +177,10 @@ class Client:
         length = []
         
         filtered_input_data = []
+        
+        print("Client ", self.id, "has", len(self._classes), "classes")
 
-        for i in range(conf["num_classes"]):
+        for i in self._classes:
             filtered_input_data = [x for x in self.train_data if x[1] == i + 1]
             if len(filtered_input_data) > 0:
                 train_i_loader = torch.utils.data.DataLoader(filtered_input_data, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
