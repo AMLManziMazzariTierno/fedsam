@@ -10,7 +10,6 @@ import warnings
 from baseline_constants import ACCURACY_KEY, conf
 from datetime import datetime
 from cifar100.dataset import get_dataset
-from cifar100.dataloader import ClientDataset
 
 
 class Client:
