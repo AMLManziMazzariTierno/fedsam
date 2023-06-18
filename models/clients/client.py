@@ -172,7 +172,7 @@ class Client:
             class_label = self._classes[i + 1]  # Get the class label
             
             # Filter the train_data based on the current class label
-            filtered_train_data = self.filter_data_by_class_label(self.train_data, class_label)
+            filtered_train_data = self.filter_data_by_label(self.train_data, class_label)
             
             if len(filtered_train_data) > 0:
                 # Create a DataLoader for the filtered train_data
