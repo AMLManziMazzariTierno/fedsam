@@ -170,19 +170,23 @@ class Client:
         for class_label in self._classes:
             # Filter the training data based on the class label
             filtered_data = self.filter_data_by_label(self.train_data, class_label)
-            filtered_loader = torch.utils.data.DataLoader(filtered_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+            if len(filtered_data) > 0:
+                filtered_loader = torch.utils.data.DataLoader(filtered_data, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
-            # Collect features for the current class
-            features = []
+                # Collect features for the current class
+                features = []
 
-            for j, data in enumerate(filtered_loader):
-                input_tensor, _ = data[0].to(self.device), data[1].to(self.device)
-                with torch.no_grad():
-                    _, feature = self.model(input_tensor)
-                    features.append(feature.cpu().numpy())
+                for j, data in enumerate(filtered_loader):
+                    input_tensor, _ = data[0].to(self.device), data[1].to(self.device)
+                    with torch.no_grad():
+                        _, feature = self.model(input_tensor)
+                        features.append(feature.cpu().numpy())
 
-            # Calculate the mean and covariance for the current class
-            class_mean, class_cov = self._cal_mean_cov(features)
+                # Calculate the mean and covariance for the current class
+                class_mean, class_cov = self._cal_mean_cov(features)
+            else:
+                class_mean = np.zeros((64,))
+                class_cov = np.zeros((64,64))
 
             mean.append(class_mean)
             cov.append(class_cov)
