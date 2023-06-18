@@ -169,10 +169,10 @@ class Client:
 
         for i in range(conf["num_classes"]):
             features = []
-            class_label = i  # Set the current class label
+            class_label = self._classes[i + 1]  # Get the class label
             
             # Filter the train_data based on the current class label
-            filtered_train_data = self.filter_data_by_class_label(class_label)
+            filtered_train_data = self.filter_data_by_class_label(self.train_data, class_label)
             
             if len(filtered_train_data) > 0:
                 # Create a DataLoader for the filtered train_data
@@ -197,8 +197,11 @@ class Client:
 
         return mean, cov, length
     
-    def filter_data_by_class_label(self, class_label):
-        filtered_data = [data for data in self.train_data if data[1] == class_label]
+    def filter_data_by_label(data, class_label):
+        filtered_data = copy.deepcopy(data)
+        filtered_data.labels = [label for label in filtered_data.labels if label == class_label]
+        filtered_data.x = [x for x, label in zip(filtered_data.x, filtered_data.labels) if label == class_label]
+        filtered_data.y = [label for label in filtered_data.labels if label == class_label]
         return filtered_data
 
 
