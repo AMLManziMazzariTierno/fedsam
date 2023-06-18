@@ -244,7 +244,7 @@ class FedOptServer(Server):
             cov_ck = np.zeros_like(client_cov[clients[0]][0])
             mul_mean = np.zeros_like(client_cov[clients[0]][0])
 
-            for c in list(client.num_samples_per_class.keys()) in test_clients:
+            for client in test_clients:
                 if c in list(client.num_samples_per_class.keys()):
                     if n_c != 0:
                         # local mean
