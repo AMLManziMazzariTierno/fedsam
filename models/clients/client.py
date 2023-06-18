@@ -167,7 +167,7 @@ class Client:
         cov = []
         length = []
 
-        for i in self._classes:
+        for i in range(conf["num_classes"]):
             features = []
             class_label = i + 1
             
