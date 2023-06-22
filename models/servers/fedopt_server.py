@@ -264,11 +264,6 @@ class FedOptServer(Server):
 
 
     def get_dataset(conf, data):
-        """
-        :param conf: 配置
-        :param data: 数据 (DataFrame)
-        :return:
-        """
         if conf['data_type'] == 'tabular':
             dataset = MyTabularDataset(data, conf['label_column'])
         elif conf['data_type'] == 'image':
