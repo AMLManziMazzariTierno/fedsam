@@ -1,6 +1,6 @@
 # Fed-CCVR
 
-This repository is an extension of the following repo [Improving Generalization in Federated Learning by Seeking Flat Minima](https://github.com/debcaldarola/fedsam). It was added the solution described by
+This repository is an extension of the following repo [Fedsam](https://github.com/debcaldarola/fedsam). It was added the solution described by
 > Mi Luo, F. Chen, D. Hu, Y. Zhang, J. Liang, J. Feng [No Fear of Heterogeneity: Classifier Calibration for Federated Learning with Non-IID Data (https://arxiv.org/pdf/2106.05001.pdf)
 
 This repository contains the official implementation of
