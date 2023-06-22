@@ -1,4 +1,4 @@
-# Fed-CCVR
+# Fedsam + Classifier Calibration with Virtual Representations
 
 This repository is an extension of the following repo [Fedsam](https://github.com/debcaldarola/fedsam). It was added the solution described by
 > Mi Luo, F. Chen, D. Hu, Y. Zhang, J. Liang, J. Feng [No Fear of Heterogeneity: Classifier Calibration for Federated Learning with Non-IID Data (https://arxiv.org/pdf/2106.05001.pdf), 35th Conference on Neural Information Processing Systems (NeurIPS 2021)
